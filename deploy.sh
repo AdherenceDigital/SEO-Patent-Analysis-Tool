@@ -89,7 +89,7 @@ Environment="DATABASE_PATH=$SERVER_DB_DIR/seo_tool.db"
 Environment="PORT=8000"
 Environment="HOST=0.0.0.0"
 Environment="DEBUG=false"
-ExecStart=/usr/bin/python3 server.py
+ExecStart=/usr/bin/python3 $SERVER_APP_DIR/server.py
 Restart=always
 RestartSec=5
 
