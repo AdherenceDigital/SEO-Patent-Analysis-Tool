@@ -8,8 +8,19 @@ import base64
 import urllib.parse
 import mimetypes
 import http.server
+import logging
 from http import HTTPStatus
 from urllib.parse import parse_qs
+
+# Setup logging
+logging.basicConfig(
+    level=logging.DEBUG if os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't') else logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger('seo_patent_tool')
 
 # Add database imports
 from database.db_manager import get_patents, get_patent_by_id
@@ -210,15 +221,17 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
 
 def run_server(port=PORT):
     """Run the HTTP server"""
-    server_address = ('', port)
-    httpd = http.server.HTTPServer(server_address, SEOPatentHandler)
-    print(f"Starting server on port {port}...")
     try:
+        server_address = ('', port)
+        httpd = http.server.HTTPServer(server_address, SEOPatentHandler)
+        logger.info(f"Starting server on port {port}...")
         httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    httpd.server_close()
-    print("Server stopped.")
+    except Exception as e:
+        logger.error(f"Error starting server: {str(e)}")
+        logger.error(f"Exception details: {type(e).__name__}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
 
 
 if __name__ == "__main__":
