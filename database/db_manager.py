@@ -295,6 +295,70 @@ def get_analyses_by_project(project_id, patent_id=None):
     
     return analyses
 
+def ensure_patents_exist():
+    """Make sure the demo patents exist in the database"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Patent data
+    demo_patents = [
+        {
+            'patent_id': 'US10719547B2',
+            'title': 'Entity Recognition in Search Algorithms',
+            'abstract': 'Methods, systems, and apparatus for entity recognition within search queries. One method includes detecting that a search query includes one or more entity terms and modifying the query to improve search results based on entity recognition.',
+            'filing_date': '2019-01-15',
+            'issue_date': '2020-07-21',
+            'inventors': 'John Smith, Jane Doe',
+            'assignee': 'Google LLC',
+            'category': 'Search Algorithms',
+            'full_text': 'Detailed description of entity recognition systems used in search algorithms including techniques for identifying entities in queries and adjusting ranking accordingly.',
+        },
+        {
+            'patent_id': 'US10885017B2',
+            'title': 'Ranking Search Results Using Interaction Metrics',
+            'abstract': 'A system for ranking search results based on user interaction data. The system tracks user interactions with search results and uses this data to improve future search rankings.',
+            'filing_date': '2019-04-10',
+            'issue_date': '2021-01-05',
+            'inventors': 'Sarah Johnson, Michael Brown',
+            'assignee': 'Google LLC',
+            'category': 'Search Algorithms',
+            'full_text': 'This patent describes methods for tracking and analyzing user interactions with search results, and using these metrics to improve the quality and relevance of future search results.',
+        },
+        {
+            'patent_id': 'US10909122B1',
+            'title': 'Mobile-First Indexing Method',
+            'abstract': 'A system and method for prioritizing mobile content when indexing web pages for search. The method includes analyzing mobile versions of pages first to determine content and relevance.',
+            'filing_date': '2020-02-14',
+            'issue_date': '2021-02-02',
+            'inventors': 'David Wilson, Lisa Chen',
+            'assignee': 'Google LLC',
+            'category': 'Indexing',
+            'full_text': 'This patent covers Google\'s mobile-first indexing approach which prioritizes the mobile version of a website for indexing and ranking. It includes methods for comparing mobile and desktop versions of sites, and algorithms for handling content disparities.',
+        }
+    ]
+    
+    # Check if each patent exists, and insert if it doesn't
+    for patent in demo_patents:
+        cursor.execute('SELECT COUNT(*) FROM patents WHERE patent_id = ?', (patent['patent_id'],))
+        exists = cursor.fetchone()[0] > 0
+        
+        if not exists:
+            cursor.execute('''
+                INSERT INTO patents (
+                    patent_id, title, abstract, filing_date, issue_date, 
+                    inventors, assignee, category, full_text
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                patent['patent_id'], patent['title'], patent['abstract'],
+                patent['filing_date'], patent['issue_date'], patent['inventors'],
+                patent['assignee'], patent['category'], patent['full_text']
+            ))
+    
+    conn.commit()
+    conn.close()
+    return True
+
 # Function to initialize the database if needed
 if __name__ == "__main__":
     init_db()
+    ensure_patents_exist()

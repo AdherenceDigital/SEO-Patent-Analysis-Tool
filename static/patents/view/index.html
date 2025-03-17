@@ -222,17 +222,21 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Get patent ID from window object (set by server) or parse from URL if needed
             const patentId = window.patentId || getPatentIdFromUrl();
+            console.log('Patent ID for detail view:', patentId);
             
             // If we have a patent ID, fetch the details
             if (patentId) {
+                console.log('Fetching patent details for ID:', patentId);
                 fetch(`/api/patent?id=${patentId}`)
                     .then(response => {
                         if (!response.ok) {
+                            console.error('Server returned status:', response.status);
                             throw new Error('Failed to fetch patent details');
                         }
                         return response.json();
                     })
                     .then(patent => {
+                        console.log('Received patent data:', patent);
                         renderPatentDetails(patent);
                     })
                     .catch(error => {

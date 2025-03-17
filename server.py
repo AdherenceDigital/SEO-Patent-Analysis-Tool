@@ -25,15 +25,15 @@ logging.basicConfig(
 logger = logging.getLogger('seo_patent_tool')
 
 # Add database imports
-from database.db_manager import get_patents, get_patent_by_id
+from database.db_manager import get_patents, get_patent_by_id, ensure_patents_exist
+
+# Import configuration
+from config import STATIC_DIR, PORT, HOST, INCLUDES_DIR
 
 # Base directory setup
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-INCLUDES_DIR = os.path.join(STATIC_ROOT, 'includes')
-
-# Default port
-PORT = int(os.environ.get('PORT', 8000))
+STATIC_ROOT = os.path.join(BASE_DIR, STATIC_DIR)
+INCLUDES_DIR = os.path.join(STATIC_ROOT, INCLUDES_DIR)
 
 class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
     """Custom handler for SEO Patent Analysis Tool"""
@@ -60,12 +60,12 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
         elif path == '/patents':
             logger.info("Serving patents index page")
             path = '/patents/index.html'
-        elif path.startswith('/patents/') and len(path.split('/')) == 3 and not path.startswith('/patents/view/'):
+        elif path.startswith('/patents/') and len(path.split('/')) == 3 and not path.endswith('.html') and not path.endswith('.css') and not path.endswith('.js'):
             # Handle /patents/[patent-id]
             patent_id = path.split('/')[2]
-            logger.info(f"Serving patent detail page for: {patent_id}")
-            # Pass the patent ID as a query parameter
-            self.patent_id = patent_id  # Store for use in process_includes
+            logger.info(f"Serving patent detail page for ID: {patent_id}")
+            # Store the patent ID for use in process_includes
+            self.patent_id = patent_id
             path = '/patents/view/index.html'
         elif path == '/dashboard':
             logger.info("Serving dashboard page")
@@ -236,12 +236,12 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
         return content
 
 
-def run_server(port=PORT):
+def run_server(port=PORT, host=HOST):
     """Run the HTTP server"""
     try:
-        server_address = ('', port)
+        server_address = (host, port)
         httpd = http.server.HTTPServer(server_address, SEOPatentHandler)
-        logger.info(f"Starting server on port {port}...")
+        logger.info(f"Starting server on {host}:{port}...")
         httpd.serve_forever()
     except OSError as e:
         if e.errno == 98:  # Address already in use
@@ -253,9 +253,9 @@ def run_server(port=PORT):
                 logger.info("Killed existing process, retrying to start server...")
                 time.sleep(2)  # Give some time for the port to be released
                 # Retry starting the server
-                server_address = ('', port)
+                server_address = (host, port)
                 httpd = http.server.HTTPServer(server_address, SEOPatentHandler)
-                logger.info(f"Starting server on port {port}...")
+                logger.info(f"Starting server on {host}:{port}...")
                 httpd.serve_forever()
             except Exception as retry_error:
                 logger.error(f"Could not restart server: {str(retry_error)}")
@@ -274,4 +274,10 @@ def run_server(port=PORT):
 
 
 if __name__ == "__main__":
+    # Make sure demo patents exist in the database
+    logger.info("Checking for demo patents in the database...")
+    ensure_patents_exist()
+    logger.info("Demo patents have been added to the database.")
+    
+    # Start the server
     run_server()
