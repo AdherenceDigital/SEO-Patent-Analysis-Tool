@@ -36,6 +36,8 @@ GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
 # Server settings
 PORT = int(os.environ.get('PORT', 8000))
 HOST = os.environ.get('HOST', '0.0.0.0')
+STATIC_DIR = os.environ.get('STATIC_DIR', 'static')
+INCLUDES_DIR = os.environ.get('INCLUDES_DIR', 'includes')
 
 # Create necessary directories
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
