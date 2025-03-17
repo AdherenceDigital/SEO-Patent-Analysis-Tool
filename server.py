@@ -42,9 +42,11 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
             path = '/index.html'
         elif path == '/patents':
             path = '/patents/index.html'
-        elif path.startswith('/patents/') and len(path.split('/')) == 3:
+        elif path.startswith('/patents/') and len(path.split('/')) == 3 and not path.startswith('/patents/view/'):
             # Handle /patents/[patent-id]
             patent_id = path.split('/')[2]
+            # Pass the patent ID as a query parameter
+            self.patent_id = patent_id  # Store for use in process_includes
             path = '/patents/view/index.html'
         elif path == '/dashboard':
             path = '/dashboard.html'
@@ -180,13 +182,28 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
                 if os.path.exists(full_path):
                     with open(full_path, 'r', encoding='utf-8') as f:
                         include_content = f.read()
-                    content = content.replace(match.group(0), include_content)
+                        content = content.replace(match.group(0), include_content)
                 else:
-                    print(f"Include file not found: {full_path}")
+                    print(f"Warning: Include file not found: {full_path}")
                     content = content.replace(match.group(0), f"<!-- Include not found: {include_path} -->")
             except Exception as e:
-                print(f"Error processing include {include_path}: {e}")
+                print(f"Error processing include {include_path}: {str(e)}")
                 content = content.replace(match.group(0), f"<!-- Error processing include: {include_path} -->")
+        
+        # Replace any patent ID placeholder if applicable
+        if hasattr(self, 'patent_id'):
+            content = content.replace('__PATENT_ID__', self.patent_id)
+            
+            # Add a script to set the patent ID in JavaScript
+            patent_id_script = f"""
+            <script>
+                // Set patent ID from server
+                window.patentId = "{self.patent_id}";
+            </script>
+            """
+            
+            # Insert the script at the end of the head section
+            content = content.replace('</head>', f"{patent_id_script}</head>")
         
         return content
 

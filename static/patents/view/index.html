@@ -218,30 +218,41 @@
     <!-- INCLUDE:footer.html -->
     
     <script>
-        // Parse the URL path to get patent ID
-        const pathParts = window.location.pathname.split('/');
-        const patentId = pathParts[pathParts.length - 1];
+        // Initialize when document is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get patent ID from window object (set by server) or parse from URL if needed
+            const patentId = window.patentId || getPatentIdFromUrl();
+            
+            // If we have a patent ID, fetch the details
+            if (patentId) {
+                fetch(`/api/patent?id=${patentId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch patent details');
+                        }
+                        return response.json();
+                    })
+                    .then(patent => {
+                        renderPatentDetails(patent);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching patent details:', error);
+                        document.getElementById('patent-details-container').innerHTML = 
+                            '<div class="error">Error loading patent details. Please try again later.</div>';
+                    });
+            } else {
+                document.getElementById('patent-details-container').innerHTML = 
+                    '<div class="error">No patent ID specified. Please go back to the patents page and select a patent.</div>';
+            }
+            
+            // Initialize tabs
+            initTabs();
+        });
         
-        // If we have a patent ID, fetch the details
-        if (patentId) {
-            fetch(`/api/patent?id=${patentId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch patent details');
-                    }
-                    return response.json();
-                })
-                .then(patent => {
-                    renderPatentDetails(patent);
-                })
-                .catch(error => {
-                    console.error('Error fetching patent details:', error);
-                    document.getElementById('patent-details-container').innerHTML = 
-                        '<div class="error">Error loading patent details. Please try again later.</div>';
-                });
-        } else {
-            document.getElementById('patent-details-container').innerHTML = 
-                '<div class="error">No patent ID specified. Please go back to the patents page and select a patent.</div>';
+        // Function to get patent ID from URL
+        function getPatentIdFromUrl() {
+            const pathParts = window.location.pathname.split('/');
+            return pathParts[pathParts.length - 1];
         }
         
         // Function to render patent details
@@ -323,9 +334,6 @@
             // Generate and set analysis
             const analysis = generateAnalysis(patent);
             renderAnalysis(analysis);
-            
-            // Initialize tabs
-            initTabs();
             
             // Set up analyze button
             document.getElementById('analyze-button').addEventListener('click', function() {
