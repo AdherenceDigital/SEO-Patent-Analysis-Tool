@@ -5,15 +5,15 @@ import datetime
 import json
 
 def get_db():
-    """Connect to the database and return a connection object"""
-    # Get database path from environment, or use default
-    db_path = os.environ.get('DATABASE_PATH', 'database/seo_tool.db')
+    """Connect to the database"""
+    # Get database path from environment or use default
+    db_path = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'database', 'seo_tool.db'))
     
     # Ensure the database directory exists
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
     
     conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row  # Return rows as dict-like objects
+    conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
@@ -297,6 +297,9 @@ def get_analyses_by_project(project_id, patent_id=None):
 
 def ensure_patents_exist():
     """Make sure the demo patents exist in the database"""
+    # First, make sure the database is initialized
+    init_db()
+    
     conn = get_db()
     cursor = conn.cursor()
     

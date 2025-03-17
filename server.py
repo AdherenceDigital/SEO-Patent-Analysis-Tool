@@ -277,10 +277,17 @@ def run_server(port=PORT, host=HOST):
 
 
 if __name__ == "__main__":
-    # Make sure demo patents exist in the database
-    logger.info("Checking for demo patents in the database...")
-    ensure_patents_exist()
-    logger.info("Demo patents have been added to the database.")
-    
-    # Start the server
-    run_server()
+    try:
+        # Make sure demo patents exist in the database
+        logger.info("Checking for demo patents in the database...")
+        ensure_patents_exist()
+        logger.info("Demo patents have been added to the database.")
+        
+        # Start the server
+        run_server()
+    except Exception as e:
+        logger.error(f"Error starting the application: {str(e)}")
+        logger.error(f"Exception type: {type(e).__name__}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
