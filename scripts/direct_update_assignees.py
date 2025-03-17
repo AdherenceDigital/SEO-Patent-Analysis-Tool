@@ -8,8 +8,8 @@ import random
 
 # Check for both possible database paths
 DATABASE_PATHS = [
+    '/var/www/seo-patent-tool/database/seo_tool.db',  # Try this one first
     '/var/db/seo-patent-tool/seo_tool.db',
-    '/var/www/seo-patent-tool/database/seo_tool.db',
     'database/seo_tool.db'
 ]
 
