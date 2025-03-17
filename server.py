@@ -27,11 +27,14 @@ logger = logging.getLogger('seo_patent_tool')
 # Add database imports
 from database.db_manager import get_patents, get_patent_by_id, ensure_patents_exist
 
-# Import configuration
-from config import STATIC_DIR, PORT, HOST, INCLUDES_DIR
+# Default port and host
+PORT = int(os.environ.get('PORT', 8000))
+HOST = os.environ.get('HOST', '0.0.0.0')
 
 # Base directory setup
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.environ.get('STATIC_DIR', 'static')
+INCLUDES_DIR = os.environ.get('INCLUDES_DIR', 'includes')
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_DIR)
 INCLUDES_DIR = os.path.join(STATIC_ROOT, INCLUDES_DIR)
 
