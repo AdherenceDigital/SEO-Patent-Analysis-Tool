@@ -6,10 +6,13 @@ import json
 
 def get_db():
     """Connect to the database and return a connection object"""
-    # Ensure the database directory exists
-    os.makedirs(os.path.dirname('database/seo_tool.db'), exist_ok=True)
+    # Get database path from environment, or use default
+    db_path = os.environ.get('DATABASE_PATH', 'database/seo_tool.db')
     
-    conn = sqlite3.connect('database/seo_tool.db')
+    # Ensure the database directory exists
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row  # Return rows as dict-like objects
     return conn
 

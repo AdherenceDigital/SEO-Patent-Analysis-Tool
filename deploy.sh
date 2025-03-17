@@ -85,7 +85,11 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=$SERVER_APP_DIR
-ExecStart=/usr/bin/python3 app.py
+Environment="DATABASE_PATH=$SERVER_DB_DIR/seo_tool.db"
+Environment="PORT=8000"
+Environment="HOST=0.0.0.0"
+Environment="DEBUG=false"
+ExecStart=/usr/bin/python3 server.py
 Restart=always
 RestartSec=5
 

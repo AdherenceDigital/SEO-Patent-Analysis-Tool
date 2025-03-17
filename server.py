@@ -20,7 +20,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 INCLUDES_DIR = os.path.join(STATIC_ROOT, 'includes')
 
 # Default port
-PORT = 8000
+PORT = int(os.environ.get('PORT', 8000))
 
 class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
     """Custom handler for SEO Patent Analysis Tool"""
