@@ -119,9 +119,20 @@ def fetch_patent_data(patent_id):
         inventors_elems = soup.select('dd[itemprop="inventor"] span[itemprop="name"]')
         inventors = ", ".join([inv.text.strip() for inv in inventors_elems]) if inventors_elems else ""
         
-        # Extract assignee
+        # Extract assignee - improved to better target "Current Assignee" information
+        assignee = ""
+        # Try first with the specific itemprop
         assignee_elem = soup.select_one('dd[itemprop="assigneeSearch"] span')
-        assignee = assignee_elem.text.strip() if assignee_elem else ""
+        if assignee_elem:
+            assignee = assignee_elem.text.strip()
+        else:
+            # Backup method: look for text labels
+            assignee_labels = soup.find_all('dt', string=lambda x: x and 'Current Assignee' in x)
+            if assignee_labels and len(assignee_labels) > 0:
+                # Get the next dd element after the "Current Assignee" label
+                assignee_elem = assignee_labels[0].find_next('dd')
+                if assignee_elem:
+                    assignee = assignee_elem.text.strip()
         
         # Extract full text (claims and description)
         claims_elem = soup.select_one('section[itemprop="claims"]')
