@@ -9,6 +9,8 @@ import urllib.parse
 import mimetypes
 import http.server
 import logging
+import time
+import subprocess
 from http import HTTPStatus
 from urllib.parse import parse_qs
 
@@ -241,6 +243,28 @@ def run_server(port=PORT):
         httpd = http.server.HTTPServer(server_address, SEOPatentHandler)
         logger.info(f"Starting server on port {port}...")
         httpd.serve_forever()
+    except OSError as e:
+        if e.errno == 98:  # Address already in use
+            logger.error(f"Port {port} is already in use, attempting to stop the existing process")
+            import subprocess
+            try:
+                # Try to kill the process using this port
+                subprocess.run(f"fuser -k {port}/tcp", shell=True)
+                logger.info("Killed existing process, retrying to start server...")
+                time.sleep(2)  # Give some time for the port to be released
+                # Retry starting the server
+                server_address = ('', port)
+                httpd = http.server.HTTPServer(server_address, SEOPatentHandler)
+                logger.info(f"Starting server on port {port}...")
+                httpd.serve_forever()
+            except Exception as retry_error:
+                logger.error(f"Could not restart server: {str(retry_error)}")
+                logger.error("Please stop the existing server process manually")
+                sys.exit(1)
+        else:
+            logger.error(f"Error starting server: {str(e)}")
+            logger.error(f"Exception details: {type(e).__name__}")
+            sys.exit(1)
     except Exception as e:
         logger.error(f"Error starting server: {str(e)}")
         logger.error(f"Exception details: {type(e).__name__}")
