@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Patent Search - SEO Patent Analysis Tool</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        .logout-button {
+            margin-left: 20px;
+            background-color: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .logout-button:hover {
+            background-color: #d32f2f;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SEO Patent Analysis Tool</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/patents" class="active">Patents</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/logout" class="logout-button">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="dashboard-header">
+            <div>
+                <h2>Patent Search</h2>
+                <p>Search, analyze, and track relevant patents for SEO impact</p>
+            </div>
+        </div>
+        
+        <div class="search-form">
+            <form id="patent-search-form" action="/patents/search" method="GET" data-ajax="true" data-target="#search-results">
+                <div class="form-group">
+                    <label for="search-query">Search Patents</label>
+                    <input type="text" id="search-query" name="q" placeholder="Enter keywords, patent number, assignee, or technology" required>
+                    <div class="form-hint">Try searching for specific technologies, competitors, or SEO-related terms</div>
+                </div>
+                
+                <div class="form-group" style="display: flex; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <label for="search-type">Search Type</label>
+                        <select id="search-type" name="type">
+                            <option value="keyword">Keyword</option>
+                            <option value="patent_id">Patent Number</option>
+                            <option value="assignee">Assignee/Company</option>
+                            <option value="inventor">Inventor</option>
+                        </select>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <label for="search-date-from">From Date</label>
+                        <input type="date" id="search-date-from" name="date_from">
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <label for="search-date-to">To Date</label>
+                        <input type="date" id="search-date-to" name="date_to">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="search-limit">Results Per Page</label>
+                    <select id="search-limit" name="limit">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Search Patents</button>
+                    <button type="reset" class="btn btn-secondary">Clear</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="search-tips">
+            <h3>Search Tips</h3>
+            <p>To get the most relevant results, consider the following tips:</p>
+            <ul>
+                <li>Use quotes for exact phrases: <strong>"search engine optimization"</strong></li>
+                <li>Use <strong>AND</strong>, <strong>OR</strong>, and <strong>NOT</strong> operators to refine your search</li>
+                <li>Add an asterisk (*) for wildcard searches: <strong>optim*</strong> will match optimize, optimization, etc.</li>
+                <li>Narrow by date range to find recent innovations</li>
+            </ul>
+            
+            <h4>Popular Searches</h4>
+            <div class="popular-searches">
+                <a href="/patents?q=search+engine+optimization" class="keyword-tag">Search Engine Optimization</a>
+                <a href="/patents?q=keyword+analysis" class="keyword-tag">Keyword Analysis</a>
+                <a href="/patents?q=content+recommendation" class="keyword-tag">Content Recommendation</a>
+                <a href="/patents?q=natural+language+processing+seo" class="keyword-tag">NLP for SEO</a>
+                <a href="/patents?q=machine+learning+ranking" class="keyword-tag">ML Ranking Algorithms</a>
+                <a href="/patents?q=search+intent" class="keyword-tag">Search Intent</a>
+            </div>
+        </div>
+        
+        <div class="section-header">
+            <h3>Search Results</h3>
+            <div id="search-stats"></div>
+        </div>
+        
+        <div id="search-results" class="patent-list">
+            <div class="empty-state">
+                <p>Enter your search query to find relevant patents.</p>
+            </div>
+        </div>
+        
+        <div id="search-pagination" class="pagination" style="display: none; margin-top: 2rem; text-align: center;">
+            <button id="prev-page" class="btn btn-secondary" disabled>Previous</button>
+            <span id="page-info" style="margin: 0 1rem;">Page 1</span>
+            <button id="next-page" class="btn btn-secondary">Next</button>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>SEO Patent Analysis Tool</h2>
+                    <p>Stay ahead of the competition by understanding how patents impact SEO strategy.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/patents">Patent Search</a></li>
+                        <li><a href="/dashboard">Dashboard</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="/help">Help & Documentation</a></li>
+                        <li><a href="/api">API Reference</a></li>
+                        <li><a href="/contact">Contact Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SEO Patent Analysis Tool. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="/static/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get search parameters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('q');
+            const searchType = urlParams.get('type');
+            const dateFrom = urlParams.get('date_from');
+            const dateTo = urlParams.get('date_to');
+            const limit = urlParams.get('limit');
+            const page = urlParams.get('page') || 1;
+            
+            // Populate form with URL parameters
+            if (searchQuery) {
+                document.getElementById('search-query').value = searchQuery;
+            }
+            
+            if (searchType) {
+                document.getElementById('search-type').value = searchType;
+            }
+            
+            if (dateFrom) {
+                document.getElementById('search-date-from').value = dateFrom;
+            }
+            
+            if (dateTo) {
+                document.getElementById('search-date-to').value = dateTo;
+            }
+            
+            if (limit) {
+                document.getElementById('search-limit').value = limit;
+            }
+            
+            // Perform search if query is present
+            if (searchQuery) {
+                performSearch(searchQuery, searchType, dateFrom, dateTo, limit, page);
+            }
+            
+            // Initialize pagination
+            initPagination();
+        });
+        
+        function performSearch(query, type, dateFrom, dateTo, limit, page) {
+            // Show loading state
+            document.getElementById('search-results').innerHTML = '<div class="loading">Searching patents...</div>';
+            
+            // Build API URL
+            let apiUrl = `/api/patents/search?q=${encodeURIComponent(query)}`;
+            
+            if (type) {
+                apiUrl += `&type=${encodeURIComponent(type)}`;
+            }
+            
+            if (dateFrom) {
+                apiUrl += `&date_from=${encodeURIComponent(dateFrom)}`;
+            }
+            
+            if (dateTo) {
+                apiUrl += `&date_to=${encodeURIComponent(dateTo)}`;
+            }
+            
+            if (limit) {
+                apiUrl += `&limit=${encodeURIComponent(limit)}`;
+            }
+            
+            if (page) {
+                apiUrl += `&page=${encodeURIComponent(page)}`;
+            }
+            
+            // Fetch search results
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Search failed');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Display search results
+                    displaySearchResults(data);
+                    
+                    // Update pagination
+                    updatePagination(data.pagination);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    
+                    document.getElementById('search-results').innerHTML = `
+                        <div class="error-state">
+                            <p>Error: ${error.message || 'Failed to perform search'}</p>
+                            <p>Please try again later.</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        function displaySearchResults(data) {
+            const searchResults = document.getElementById('search-results');
+            const searchStats = document.getElementById('search-stats');
+            
+            // Display search stats
+            searchStats.textContent = `Found ${data.total} patents`;
+            
+            // Check if there are results
+            if (!data.results || data.results.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="empty-state">
+                        <p>No patents found matching your search criteria.</p>
+                        <p>Try broadening your search or using different keywords.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Clear previous results
+            searchResults.innerHTML = '';
+            
+            // Display results
+            data.results.forEach(patent => {
+                const patentEl = document.createElement('div');
+                patentEl.className = 'patent-card';
+                
+                patentEl.innerHTML = `
+                    <h4><a href="/patents/view/${patent.id}">${patent.title}</a></h4>
+                    <div class="patent-meta">
+                        <span class="patent-id">${patent.patent_id}</span>
+                        <span class="patent-date">Filed: ${patent.filing_date || 'N/A'}</span>
+                    </div>
+                    <p>${patent.abstract ? (patent.abstract.length > 150 ? patent.abstract.substring(0, 150) + '...' : patent.abstract) : 'No abstract available'}</p>
+                    <div class="patent-footer">
+                        <span class="patent-assignee">${patent.assignee || 'Unknown'}</span>
+                        <a href="/patents/view/${patent.id}" class="btn btn-text">View Details →</a>
+                    </div>
+                `;
+                
+                searchResults.appendChild(patentEl);
+            });
+            
+            // Show pagination if needed
+            if (data.pagination && data.pagination.total_pages > 1) {
+                document.getElementById('search-pagination').style.display = 'block';
+            } else {
+                document.getElementById('search-pagination').style.display = 'none';
+            }
+        }
+        
+        function initPagination() {
+            const prevPageBtn = document.getElementById('prev-page');
+            const nextPageBtn = document.getElementById('next-page');
+            
+            prevPageBtn.addEventListener('click', function() {
+                goToPage(getCurrentPage() - 1);
+            });
+            
+            nextPageBtn.addEventListener('click', function() {
+                goToPage(getCurrentPage() + 1);
+            });
+        }
+        
+        function updatePagination(pagination) {
+            if (!pagination) return;
+            
+            const currentPage = pagination.current_page;
+            const totalPages = pagination.total_pages;
+            
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
+            
+            document.getElementById('prev-page').disabled = currentPage <= 1;
+            document.getElementById('next-page').disabled = currentPage >= totalPages;
+        }
+        
+        function getCurrentPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('page') || '1');
+        }
+        
+        function goToPage(page) {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('page', page);
+            
+            window.location.search = urlParams.toString();
+        }
+    </script>
+</body>
+</html>

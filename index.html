@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>SEO Patent Analysis Tool</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        .logout-button {
+            margin-left: 20px;
+            background-color: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .logout-button:hover {
+            background-color: #d32f2f;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SEO Patent Analysis Tool</h1>
+            <nav>
+                <ul>
+                    <li><a href="/" class="active">Home</a></li>
+                    <li><a href="/patents">Patents</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/logout" class="logout-button">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Understand Search Algorithms Through Patents</h2>
+                <p>Gain competitive advantage by uncovering the secrets behind search engine algorithms using patent analysis.</p>
+                <div class="hero-buttons">
+                    <a href="/patents/search" class="btn btn-primary">Search Patents</a>
+                    <a href="/dashboard" class="btn btn-secondary">View Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features">
+        <div class="container">
+            <h3>Key Features</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h4>Patent Search</h4>
+                    <p>Search Google's patent database for SEO-related technologies and algorithms.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>SEO Analysis</h4>
+                    <p>Analyze patents for SEO implications and ranking factors.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h4>Optimization Tips</h4>
+                    <p>Get actionable recommendations based on patent insights.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h4>Backlink Research</h4>
+                    <p>Understand link algorithms through patent research.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h4>Mobile Optimization</h4>
+                    <p>Explore mobile-specific search patents and implications.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Site Performance</h4>
+                    <p>Learn how site performance impacts rankings from patents.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="recent-patents">
+        <div class="container">
+            <div class="section-header">
+                <h3>Recently Added Patents</h3>
+                <a href="/patents" class="btn btn-text">View All Patents →</a>
+            </div>
+            <div id="recent-patents-list" class="patents-grid">
+                <!-- Patents will be loaded here via JavaScript -->
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>SEO Patent Analysis Tool</h2>
+                </div>
+                <div class="footer-links">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/patents">Patents</a></li>
+                        <li><a href="/dashboard">Dashboard</a></li>
+                        <li><a href="/patents/search">Search</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Popular Searches</h4>
+                    <ul>
+                        <li><a href="/patents/search?q=algorithm">Ranking Algorithms</a></li>
+                        <li><a href="/patents/search?q=backlinks">Backlink Analysis</a></li>
+                        <li><a href="/patents/search?q=content+quality">Content Quality</a></li>
+                        <li><a href="/patents/search?q=site+speed">Site Speed</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SEO Patent Analysis Tool</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="/static/js/main.js"></script>
+    <script>
+        // Fetch recent patents on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/patents')
+                .then(response => response.json())
+                .then(patents => {
+                    const patentsList = document.getElementById('recent-patents-list');
+                    
+                    if (patents.length === 0) {
+                        patentsList.innerHTML = '<div class="empty-state">No patents available.</div>';
+                        return;
+                    }
+                    
+                    let patentsHTML = '';
+                    patents.forEach(patent => {
+                        patentsHTML += `
+                            <div class="patent-card">
+                                <h4><a href="/patents/view/${patent.id}">${patent.title}</a></h4>
+                                <div class="patent-meta">
+                                    <span class="patent-id">${patent.patent_id}</span>
+                                    <span class="patent-date">Filed: ${patent.filing_date}</span>
+                                </div>
+                                <p>${patent.abstract.length > 150 ? patent.abstract.substring(0, 150) + '...' : patent.abstract}</p>
+                                <div class="patent-footer">
+                                    <span class="patent-assignee">${patent.assignee}</span>
+                                    <a href="/patents/view/${patent.id}" class="btn btn-text">View Details →</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    patentsList.innerHTML = patentsHTML;
+                })
+                .catch(error => {
+                    console.error('Error fetching patents:', error);
+                    document.getElementById('recent-patents-list').innerHTML = '<div class="error-state">Error loading patents. Please try again later.</div>';
+                });
+        });
+    </script>
+</body>
+</html>

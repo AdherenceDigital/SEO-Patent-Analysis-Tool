@@ -13,8 +13,10 @@ venv/
 env/
 ENV/
 
-# Local development settings
+# Environment variables
 .env
+
+# Local development settings
 .vscode/
 .idea/
 

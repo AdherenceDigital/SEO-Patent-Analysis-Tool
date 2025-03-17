@@ -1,0 +1,20 @@
+# Server requirements
+aiohttp
+beautifulsoup4
+google-api-python-client
+google-auth
+google-auth-oauthlib
+lxml
+matplotlib
+networkx
+numpy
+pandas
+plotly
+python-dateutil
+requests
+scikit-learn
+scipy
+seaborn
+selenium
+urllib3
+passlib

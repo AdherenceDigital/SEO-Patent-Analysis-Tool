@@ -122,7 +122,7 @@
                                 <path d="M9 21V9" stroke="currentColor" stroke-width="2"/>
                             </svg> ${patent.id}</span>
                         </div>
-                        <p><strong>${patent.assignee || 'Unknown Assignee'}</strong></p>
+                        <p><strong>${patent.assignee && patent.assignee !== 'not specified' ? patent.assignee : 'Unknown Assignee'}</strong></p>
                         <p>${patent.abstract || 'No abstract available.'}</p>
                         <div class="patent-actions">
                             <a href="/patents/${patent.id}" class="btn btn-sm">View Details</a>

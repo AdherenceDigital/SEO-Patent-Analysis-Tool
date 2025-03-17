@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Patent Details - SEO Patent Analysis Tool</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        .patent-details {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .patent-details h2 {
+            margin-bottom: 1rem;
+        }
+        
+        .patent-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+        }
+        
+        .patent-meta-item {
+            margin-bottom: 1rem;
+        }
+        
+        .patent-meta-item h4 {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+        
+        .patent-meta-item p {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+        
+        .patent-content-tabs {
+            margin-top: 2rem;
+        }
+        
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 500;
+            color: var(--text-color);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .claim-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .claim-item:last-child {
+            border-bottom: none;
+        }
+        
+        .claim-number {
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+        
+        .logout-button {
+            margin-left: 20px;
+            background-color: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .logout-button:hover {
+            background-color: #d32f2f;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SEO Patent Analysis Tool</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/patents" class="active">Patents</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/logout" class="logout-button">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="dashboard-header">
+            <div>
+                <h2>Patent Details</h2>
+                <div class="breadcrumbs">
+                    <a href="/">Home</a> &gt; 
+                    <a href="/patents">Patents</a> &gt; 
+                    <span id="patent-id-breadcrumb">Patent</span>
+                </div>
+            </div>
+            <div class="dashboard-actions">
+                <a href="/patents" class="btn btn-secondary">Back to Patents</a>
+            </div>
+        </div>
+        
+        <div id="patent-container">
+            <div class="loading">Loading patent details...</div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SEO Patent Analysis Tool</p>
+        </div>
+    </footer>
+    
+    <script src="/static/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get patent ID from URL
+            const urlParts = window.location.pathname.split('/');
+            const patentId = urlParts[urlParts.length - 1];
+            
+            // Update breadcrumb
+            document.getElementById('patent-id-breadcrumb').textContent = `Patent #${patentId}`;
+            
+            // Fetch patent details
+            fetch(`/api/patent/${patentId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Patent not found');
+                    }
+                    return response.json();
+                })
+                .then(patent => {
+                    if (!patent) {
+                        throw new Error('Patent not found');
+                    }
+                    
+                    // Update page title
+                    document.title = `${patent.title} - SEO Patent Analysis Tool`;
+                    
+                    // Render patent details
+                    renderPatentDetails(patent);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    
+                    const patentContainer = document.getElementById('patent-container');
+                    patentContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <p>Error: ${error.message || 'Failed to load patent details'}</p>
+                            <p><a href="/patents">Return to patents listing</a></p>
+                        </div>
+                    `;
+                });
+        });
+        
+        function renderPatentDetails(patent) {
+            const patentContainer = document.getElementById('patent-container');
+            
+            // Create patent details HTML
+            const patentDetailsHtml = `
+                <div class="patent-details">
+                    <h2>${patent.title}</h2>
+                    <div class="patent-id">${patent.patent_id}</div>
+                    
+                    <div class="patent-meta-grid">
+                        <div class="patent-meta-item">
+                            <h4>Assignee</h4>
+                            <p>${patent.assignee}</p>
+                        </div>
+                        <div class="patent-meta-item">
+                            <h4>Filing Date</h4>
+                            <p>${patent.filing_date}</p>
+                        </div>
+                        <div class="patent-meta-item">
+                            <h4>Issue Date</h4>
+                            <p>${patent.issue_date}</p>
+                        </div>
+                        <div class="patent-meta-item">
+                            <h4>Inventors</h4>
+                            <p>${patent.inventors}</p>
+                        </div>
+                    </div>
+                    
+                    <h3>Abstract</h3>
+                    <p>${patent.abstract}</p>
+                    
+                    <div class="action-buttons">
+                        <a href="/patents/analyze/${patent.id}" class="btn btn-primary">Analyze SEO Impact</a>
+                        <a href="${patent.url || `https://patents.google.com/patent/${patent.patent_id}/en`}" target="_blank" class="btn btn-secondary">View on Google Patents</a>
+                    </div>
+                    
+                    <div class="patent-content-tabs">
+                        <div class="tabs-header">
+                            <button class="tab-button active" data-tab="description">Description</button>
+                            <button class="tab-button" data-tab="claims">Claims</button>
+                            ${patent.analyses && patent.analyses.length > 0 ? 
+                                '<button class="tab-button" data-tab="analysis">SEO Analysis</button>' : ''}
+                        </div>
+                        
+                        <div id="description-tab" class="tab-content active">
+                            ${patent.full_text ? formatDescription(patent.full_text) : '<p>No detailed description available.</p>'}
+                        </div>
+                        
+                        <div id="claims-tab" class="tab-content">
+                            ${renderClaims(patent.claims)}
+                        </div>
+                        
+                        ${patent.analyses && patent.analyses.length > 0 ? 
+                            `<div id="analysis-tab" class="tab-content">
+                                ${renderAnalysis(patent.analyses[0])}
+                            </div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            patentContainer.innerHTML = patentDetailsHtml;
+            
+            // Initialize tabs
+            initTabs();
+        }
+        
+        function formatDescription(description) {
+            // Split description into paragraphs
+            const paragraphs = description.split('\n\n');
+            
+            return paragraphs.map(p => `<p>${p}</p>`).join('');
+        }
+        
+        function renderClaims(claims) {
+            if (!claims || claims.length === 0) {
+                return '<p>No claims available.</p>';
+            }
+            
+            return `
+                <div class="claims-list">
+                    ${claims.map((claim, index) => `
+                        <div class="claim-item">
+                            <span class="claim-number">${index + 1}.</span>
+                            ${claim}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function renderAnalysis(analysis) {
+            if (!analysis) {
+                return '<p>No analysis available.</p>';
+            }
+            
+            let keywords = [];
+            let keyphrases = [];
+            let recommendations = [];
+            
+            try {
+                keywords = JSON.parse(analysis.keywords);
+            } catch (e) {
+                keywords = analysis.keywords ? analysis.keywords.split(',') : [];
+            }
+            
+            try {
+                keyphrases = JSON.parse(analysis.keyphrases);
+            } catch (e) {
+                keyphrases = analysis.keyphrases ? analysis.keyphrases.split(',') : [];
+            }
+            
+            try {
+                recommendations = JSON.parse(analysis.recommendations);
+            } catch (e) {
+                recommendations = analysis.recommendations ? analysis.recommendations.split(',') : [];
+            }
+            
+            return `
+                <div class="analysis-content">
+                    <div class="analysis-header">
+                        <h3>SEO Analysis</h3>
+                        <div class="analysis-meta">
+                            <span class="analysis-impact ${analysis.seo_impact.toLowerCase()}">${analysis.seo_impact} Impact</span>
+                            <span class="analysis-score">Innovation Score: ${analysis.innovation_score}/100</span>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-summary">
+                        <h4>Summary</h4>
+                        <p>${analysis.insight_summary}</p>
+                    </div>
+                    
+                    <div class="analysis-grid">
+                        <div class="analysis-section">
+                            <h4>Key SEO Factors</h4>
+                            <div class="keyword-list">
+                                ${keywords.map(keyword => `
+                                    <span class="keyword-tag">${keyword}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-section">
+                            <h4>Important Phrases</h4>
+                            <div class="keyword-list">
+                                ${keyphrases.map(phrase => `
+                                    <span class="keyword-tag">${phrase}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-recommendations">
+                        <h4>SEO Recommendations</h4>
+                        <ul>
+                            ${recommendations.map(rec => `
+                                <li>${rec}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to current button
+                    button.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

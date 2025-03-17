@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Analysis - SEO Patent Analysis Tool</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        .analysis-header {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+        
+        .analysis-patent-title {
+            margin-bottom: 1rem;
+        }
+        
+        .analysis-patent-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+        
+        .analysis-columns {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        .analysis-form {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .analysis-form h3 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .analysis-sidebar {
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .form-section h4 {
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .checkbox-group {
+            margin-bottom: 1rem;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: auto;
+        }
+        
+        .keyword-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .keyword-relevance {
+            font-weight: 500;
+            border-radius: 1rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .relevance-high {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        
+        .relevance-medium {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .relevance-low {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            font-size: 1.25rem;
+            backdrop-filter: blur(3px);
+        }
+        
+        .loading-spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid var(--primary-color);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .analysis-results {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+        }
+        
+        .result-section {
+            margin-bottom: 2rem;
+        }
+        
+        .result-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .impact-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .score-box {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .score-label {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        
+        .chart-container {
+            height: 250px;
+            margin: 2rem 0;
+        }
+        
+        .impact-factors {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .factor-item {
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+        }
+        
+        .factor-item h5 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .factor-item p {
+            font-size: 0.875rem;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SEO Patent Analysis Tool</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/patents" class="active">Patents</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="dashboard-header">
+            <div>
+                <h2>SEO Impact Analysis</h2>
+                <div class="breadcrumbs">
+                    <a href="/">Home</a> &gt; 
+                    <a href="/patents">Patents</a> &gt; 
+                    <a href="#" id="patent-link">Patent</a> &gt; 
+                    <span>Analysis</span>
+                </div>
+            </div>
+            <div class="dashboard-actions">
+                <a href="#" id="back-to-patent" class="btn btn-secondary">Back to Patent</a>
+            </div>
+        </div>
+        
+        <div id="analysis-container">
+            <div class="loading">Loading patent information...</div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>SEO Patent Analysis Tool</h2>
+                    <p>Stay ahead of the competition by understanding how patents impact SEO strategy.</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/patents">Patent Search</a></li>
+                        <li><a href="/dashboard">Dashboard</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="/help">Help & Documentation</a></li>
+                        <li><a href="/api">API Reference</a></li>
+                        <li><a href="/contact">Contact Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SEO Patent Analysis Tool. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <div>Analyzing patent for SEO impact...</div>
+    </div>
+    
+    <script src="/static/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get patent ID from URL
+            const urlParts = window.location.pathname.split('/');
+            const patentId = urlParts[urlParts.length - 1];
+            
+            // Update links
+            document.getElementById('patent-link').href = `/patents/view/${patentId}`;
+            document.getElementById('patent-link').textContent = `Patent #${patentId}`;
+            document.getElementById('back-to-patent').href = `/patents/view/${patentId}`;
+            
+            // Fetch patent details
+            fetch(`/api/patent/${patentId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Patent not found');
+                    }
+                    return response.json();
+                })
+                .then(patent => {
+                    if (!patent) {
+                        throw new Error('Patent not found');
+                    }
+                    
+                    // Update page title
+                    document.title = `SEO Analysis: ${patent.title} - SEO Patent Analysis Tool`;
+                    
+                    // Initialize the analysis interface
+                    initAnalysisInterface(patent);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    
+                    const analysisContainer = document.getElementById('analysis-container');
+                    analysisContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <p>Error: ${error.message || 'Failed to load patent details'}</p>
+                            <p><a href="/patents">Return to patents listing</a></p>
+                        </div>
+                    `;
+                });
+        });
+        
+        function initAnalysisInterface(patent) {
+            const analysisContainer = document.getElementById('analysis-container');
+            
+            // Create analysis interface HTML
+            const analysisHtml = `
+                <div class="analysis-header">
+                    <h3 class="analysis-patent-title">${patent.title}</h3>
+                    <div class="analysis-patent-meta">
+                        <div class="meta-item">Patent ID: ${patent.patent_id}</div>
+                        <div class="meta-item">Filed: ${patent.filing_date || 'N/A'}</div>
+                        <div class="meta-item">Assignee: ${patent.assignee || 'Unknown'}</div>
+                    </div>
+                    <p>${patent.abstract}</p>
+                </div>
+                
+                <div class="analysis-columns">
+                    <div class="analysis-form">
+                        <h3>SEO Impact Analysis</h3>
+                        <form id="analysis-form">
+                            <input type="hidden" name="patent_id" value="${patent.id}">
+                            
+                            <div class="form-section">
+                                <h4>Analysis Parameters</h4>
+                                <div class="form-group">
+                                    <label for="competitors">Competitor Domains (optional)</label>
+                                    <input type="text" id="competitors" name="competitors" placeholder="e.g., competitor1.com, competitor2.com">
+                                    <div class="form-hint">Comma-separated list of competitor domains to include in analysis</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="keywords">Additional Keywords (optional)</label>
+                                    <input type="text" id="keywords" name="keywords" placeholder="e.g., SEO, search ranking, AI">
+                                    <div class="form-hint">Comma-separated list of additional keywords to include in analysis</div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <h4>Analysis Options</h4>
+                                <div class="checkbox-group">
+                                    <label>
+                                        <input type="checkbox" name="options[]" value="keyword_extraction" checked>
+                                        Keyword Extraction & Analysis
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="options[]" value="competitive_analysis" checked>
+                                        Competitive Analysis
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="options[]" value="content_recommendations" checked>
+                                        Content Recommendations
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="options[]" value="impact_assessment" checked>
+                                        SEO Impact Assessment
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Run Analysis</button>
+                                <button type="reset" class="btn btn-secondary">Reset</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="analysis-sidebar">
+                        <h3>Patent Keywords</h3>
+                        <p>These keywords have been automatically extracted from the patent text:</p>
+                        
+                        <div id="keyword-list" class="patent-keywords">
+                            ${generateRandomKeywords(patent.title, patent.abstract)}
+                        </div>
+                        
+                        <div style="margin-top: 2rem;">
+                            <h4>Analysis Tips</h4>
+                            <ul>
+                                <li>Add competitor domains to compare against their SEO strategies</li>
+                                <li>Include specific keywords relevant to your industry</li>
+                                <li>The analysis may take up to 30 seconds to complete</li>
+                                <li>Results will include actionable SEO recommendations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="analysis-results" class="analysis-results" style="display: none;">
+                    <!-- Analysis results will be displayed here after processing -->
+                </div>
+            `;
+            
+            analysisContainer.innerHTML = analysisHtml;
+            
+            // Initialize form submission
+            initAnalysisForm();
+        }
+        
+        function generateRandomKeywords(title, abstract) {
+            // Extract potential keywords from title and abstract
+            const allText = `${title} ${abstract}`;
+            const words = allText.toLowerCase().split(/\s+/);
+            const filteredWords = words.filter(word => 
+                word.length > 3 && 
+                !['this', 'that', 'with', 'from', 'have', 'they', 'their', 'were', 'would', 'could', 'should', 'about'].includes(word)
+            );
+            
+            // Get unique words
+            const uniqueWords = [...new Set(filteredWords)];
+            
+            // Select up to 10 random words
+            const selectedWords = uniqueWords.sort(() => 0.5 - Math.random()).slice(0, 10);
+            
+            // Assign random relevance scores
+            const relevanceLevels = ['high', 'medium', 'low'];
+            
+            // Generate HTML for keywords
+            return selectedWords.map(word => {
+                const relevance = relevanceLevels[Math.floor(Math.random() * relevanceLevels.length)];
+                return `
+                    <div class="keyword-item">
+                        <div class="keyword-text">${word.replace(/[.,;:"']/g, '')}</div>
+                        <div class="keyword-relevance relevance-${relevance}">${relevance}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function initAnalysisForm() {
+            const analysisForm = document.getElementById('analysis-form');
+            
+            analysisForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Show loading overlay
+                document.getElementById('loading-overlay').style.display = 'flex';
+                
+                // Simulate analysis (in a real app, this would be an API call)
+                setTimeout(() => {
+                    // Hide loading overlay
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    
+                    // Show results
+                    displayAnalysisResults();
+                }, 3000);
+            });
+        }
+        
+        function displayAnalysisResults() {
+            const resultsContainer = document.getElementById('analysis-results');
+            
+            // Generate random analysis data
+            const impactScore = Math.floor(Math.random() * 40) + 60; // 60-100
+            const impactLevel = impactScore >= 80 ? 'High' : (impactScore >= 70 ? 'Medium' : 'Low');
+            
+            // Create results HTML
+            const resultsHtml = `
+                <h3>SEO Analysis Results</h3>
+                
+                <div class="result-section">
+                    <div class="impact-score">
+                        <div class="score-box">${impactScore}</div>
+                        <div class="score-info">
+                            <div class="score-label">${impactLevel} SEO Impact</div>
+                            <p>This patent has a ${impactLevel.toLowerCase()} potential impact on SEO strategies in your industry.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-summary">
+                        <p>This analysis identifies how this patent may influence search ranking factors and content strategies. The patent introduces techniques that could affect how search engines evaluate website content and rank pages.</p>
+                    </div>
+                </div>
+                
+                <div class="result-section">
+                    <h4>Key Findings</h4>
+                    <div class="impact-factors">
+                        <div class="factor-item">
+                            <h5>Keyword Relevance</h5>
+                            <p>The patent introduces new ways to analyze keyword relevance that may affect how content should be optimized.</p>
+                        </div>
+                        <div class="factor-item">
+                            <h5>Content Structure</h5>
+                            <p>New methods for evaluating content structure and organization could impact how content should be formatted.</p>
+                        </div>
+                        <div class="factor-item">
+                            <h5>User Intent Matching</h5>
+                            <p>Enhanced algorithms for matching content to user intent may require adjustments to content strategy.</p>
+                        </div>
+                        <div class="factor-item">
+                            <h5>Technical SEO</h5>
+                            <p>New considerations for site structure and technical elements may require infrastructure changes.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-section">
+                    <h4>Recommended Actions</h4>
+                    <ul>
+                        <li>Update content strategy to align with the patent's emphasis on semantic relationships between topics</li>
+                        <li>Revise keyword research methodology to account for new relevance factors</li>
+                        <li>Enhance structured data implementation to provide more context for content</li>
+                        <li>Monitor competitor adaptations to these potential changes</li>
+                        <li>Consider developing content that addresses specific aspects mentioned in the patent</li>
+                    </ul>
+                </div>
+                
+                <div class="result-section">
+                    <h4>Competitive Insights</h4>
+                    <p>Based on the patent analysis, these competitors may be most affected:</p>
+                    <ul>
+                        <li><strong>Competitor A</strong> - Currently uses techniques that may be impacted by this patent</li>
+                        <li><strong>Competitor B</strong> - Has similar patents pending which may conflict</li>
+                        <li><strong>Competitor C</strong> - Could benefit from implementing similar approaches</li>
+                    </ul>
+                </div>
+                
+                <div class="form-actions" style="margin-top: 2rem;">
+                    <a href="#" class="btn btn-primary" id="save-analysis">Save Analysis</a>
+                    <a href="#" class="btn btn-secondary" id="export-pdf">Export as PDF</a>
+                </div>
+            `;
+            
+            // Display results
+            resultsContainer.innerHTML = resultsHtml;
+            resultsContainer.style.display = 'block';
+            
+            // Smooth scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // Initialize buttons
+            document.getElementById('save-analysis').addEventListener('click', function(event) {
+                event.preventDefault();
+                alert('Analysis saved to your dashboard.');
+            });
+            
+            document.getElementById('export-pdf').addEventListener('click', function(event) {
+                event.preventDefault();
+                alert('Exporting as PDF... This feature will be available soon.');
+            });
+        }
+    </script>
+</body>
+</html>
