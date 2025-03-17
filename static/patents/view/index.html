@@ -51,34 +51,30 @@
         .patent-actions {
             display: flex;
             gap: 1rem;
-            margin-top: 1.5rem;
+            margin: 1.5rem 0;
         }
         
-        .tabs {
+        .patent-content {
             margin-top: 2rem;
         }
         
-        .tab-nav {
+        .tabs {
             display: flex;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 1.5rem;
         }
         
-        .tab-nav button {
-            padding: 0.75rem 1.25rem;
-            background: none;
-            border: none;
-            border-bottom: 2px solid transparent;
-            font-size: 1rem;
+        .tab {
+            padding: 0.75rem 1.5rem;
             font-weight: 500;
-            color: var(--text-muted);
             cursor: pointer;
-            margin-right: 0.5rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
         }
         
-        .tab-nav button.active {
-            color: var(--primary-color);
+        .tab.active {
             border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
         }
         
         .tab-content {
@@ -89,46 +85,72 @@
             display: block;
         }
         
-        .claims-list {
-            list-style-type: decimal;
-            padding-left: 1.5rem;
-            line-height: 1.6;
+        #patent-description, #patent-claims {
+            line-height: 1.7;
         }
         
-        .claims-list li {
+        .claim {
             margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            border-left: 3px solid var(--light-color);
         }
         
-        .analysis-grid {
+        .claim-number {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .impact-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1.5rem;
+            margin: 1.5rem 0;
         }
         
-        .analysis-card {
-            background-color: var(--card-background);
+        .impact-card {
+            background-color: var(--light-color);
             border-radius: var(--border-radius);
             padding: 1.5rem;
-            box-shadow: var(--shadow);
         }
         
-        .analysis-card h4 {
+        .impact-title {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
-            margin-bottom: 1rem;
+            gap: 0.5rem;
         }
         
-        .analysis-icon {
+        .impact-level {
             display: inline-block;
-            width: 24px;
-            height: 24px;
-            background-color: var(--primary-light);
-            color: var(--primary-color);
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            font-weight: 700;
-            margin-right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .impact-high {
+            background-color: #ffeeee;
+            color: #e53935;
+        }
+        
+        .impact-medium {
+            background-color: #fff8e1;
+            color: #ffa000;
+        }
+        
+        .impact-low {
+            background-color: #e3f2fd;
+            color: #1e88e5;
+        }
+        
+        .action-items {
+            margin-top: 2rem;
+        }
+        
+        .action-items li {
+            margin-bottom: 0.75rem;
         }
     </style>
 </head>
@@ -137,42 +159,57 @@
     
     <main class="container">
         <div id="patent-details-container">
+            <!-- Patent details will be loaded here -->
             <div class="loading">Loading patent details...</div>
         </div>
         
-        <div class="tabs">
-            <div class="tab-nav">
-                <button class="tab-button active" data-tab="details">Details</button>
-                <button class="tab-button" data-tab="claims">Claims</button>
-                <button class="tab-button" data-tab="analysis">SEO Analysis</button>
+        <div class="patent-content">
+            <div class="tabs">
+                <div class="tab active" data-tab="abstract">Abstract</div>
+                <div class="tab" data-tab="description">Description</div>
+                <div class="tab" data-tab="claims">Claims</div>
+                <div class="tab" data-tab="analysis">SEO Analysis</div>
             </div>
             
-            <div id="details-tab" class="tab-content active">
-                <div class="patent-abstract">
-                    <h3>Abstract</h3>
-                    <div id="patent-abstract"></div>
-                </div>
-                
-                <div class="patent-description">
-                    <h3>Description</h3>
-                    <div id="patent-description"></div>
-                </div>
+            <div class="tab-content active" id="tab-abstract">
+                <div class="patent-abstract" id="patent-abstract">Loading abstract...</div>
             </div>
             
-            <div id="claims-tab" class="tab-content">
-                <h3>Patent Claims</h3>
-                <div id="patent-claims"></div>
+            <div class="tab-content" id="tab-description">
+                <div id="patent-description">Loading description...</div>
             </div>
             
-            <div id="analysis-tab" class="tab-content">
-                <h3>SEO Impact Analysis</h3>
-                <p>Analysis of how this patent may affect search engine optimization strategies and ranking factors.</p>
-                
-                <div id="seo-analysis"></div>
-                
-                <div class="patent-actions">
-                    <button id="analyze-button" class="btn btn-primary">Run New Analysis</button>
-                    <button id="save-analysis-button" class="btn btn-outline">Save Analysis</button>
+            <div class="tab-content" id="tab-claims">
+                <div id="patent-claims">Loading claims...</div>
+            </div>
+            
+            <div class="tab-content" id="tab-analysis">
+                <div id="patent-analysis">
+                    <p class="mb-4">This analysis examines the potential SEO impact of this patent and provides recommendations based on its content.</p>
+                    
+                    <h3>Key Concepts</h3>
+                    <ul id="key-concepts" class="mb-4">
+                        <li>Loading concepts...</li>
+                    </ul>
+                    
+                    <h3>SEO Impact Areas</h3>
+                    <div id="impact-areas" class="impact-grid">
+                        <!-- Impact areas will be loaded here -->
+                    </div>
+                    
+                    <h3>Recommended Action Items</h3>
+                    <ul id="action-items" class="action-items">
+                        <!-- Action items will be loaded here -->
+                    </ul>
+                    
+                    <div class="mt-4">
+                        <h3>Overall Insight</h3>
+                        <p id="insight-summary" class="my-3">Loading insights...</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button id="analyze-button" class="btn btn-primary">Analyze This Patent</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -181,14 +218,19 @@
     <!-- INCLUDE:footer.html -->
     
     <script>
-        // Get patent ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const patentId = urlParams.get('id');
+        // Parse the URL path to get patent ID
+        const pathParts = window.location.pathname.split('/');
+        const patentId = pathParts[pathParts.length - 1];
         
         // If we have a patent ID, fetch the details
         if (patentId) {
-            fetch(`/api/patent/${patentId}`)
-                .then(response => response.json())
+            fetch(`/api/patent?id=${patentId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch patent details');
+                    }
+                    return response.json();
+                })
                 .then(patent => {
                     renderPatentDetails(patent);
                 })
@@ -217,34 +259,34 @@
                     <div class="patent-meta-grid">
                         <div class="patent-meta-item">
                             <div class="meta-label">Assignee</div>
-                            <div class="meta-value">${patent.assignee}</div>
+                            <div class="meta-value">${patent.assignee || 'Not specified'}</div>
                         </div>
                         <div class="patent-meta-item">
                             <div class="meta-label">Filed Date</div>
-                            <div class="meta-value">${patent.filed}</div>
+                            <div class="meta-value">${patent.filing_date || 'Not specified'}</div>
                         </div>
                         <div class="patent-meta-item">
                             <div class="meta-label">Published Date</div>
-                            <div class="meta-value">${patent.published}</div>
+                            <div class="meta-value">${patent.issue_date || 'Not specified'}</div>
                         </div>
                         <div class="patent-meta-item">
                             <div class="meta-label">Status</div>
-                            <div class="meta-value">${patent.status || 'Active'}</div>
+                            <div class="meta-value">Active</div>
                         </div>
                         <div class="patent-meta-item">
                             <div class="meta-label">Inventors</div>
                             <div class="meta-value">${patent.inventors || 'Not specified'}</div>
                         </div>
                         <div class="patent-meta-item">
-                            <div class="meta-label">Classification</div>
-                            <div class="meta-value">${patent.classification || 'Not specified'}</div>
+                            <div class="meta-label">Category</div>
+                            <div class="meta-value">${patent.category || 'Not specified'}</div>
                         </div>
                     </div>
                     
                     <div class="patent-actions">
                         <a href="/patents/analyze?id=${patent.id}" class="btn btn-primary">Analyze SEO Impact</a>
                         <button class="btn btn-outline">Save to Project</button>
-                        <a href="${patent.url || '#'}" target="_blank" class="btn btn-text">View on Google Patents</a>
+                        <a href="https://patents.google.com/patent/${patent.id}/en" target="_blank" class="btn btn-text">View on Google Patents</a>
                     </div>
                 </div>
             `;
@@ -252,184 +294,222 @@
             detailsContainer.innerHTML = detailsHTML;
             
             // Set abstract
-            document.getElementById('patent-abstract').innerHTML = patent.abstract;
+            document.getElementById('patent-abstract').innerHTML = patent.abstract || 'No abstract available.';
+            
+            // Extract description and claims from full_text if available
+            let description = 'No detailed description available.';
+            let claims = 'No claims available.';
+            
+            if (patent.full_text) {
+                const parts = patent.full_text.split('CLAIMS:');
+                if (parts.length > 1) {
+                    const claimsPart = parts[1].split('DESCRIPTION:')[0].trim();
+                    claims = claimsPart || claims;
+                    
+                    if (parts[1].includes('DESCRIPTION:')) {
+                        description = parts[1].split('DESCRIPTION:')[1].trim() || description;
+                    }
+                } else if (patent.full_text.includes('DESCRIPTION:')) {
+                    description = patent.full_text.split('DESCRIPTION:')[1].trim() || description;
+                }
+            }
             
             // Set description (formatted)
-            document.getElementById('patent-description').innerHTML = formatDescription(patent.description || 'No detailed description available.');
+            document.getElementById('patent-description').innerHTML = formatDescription(description);
             
             // Set claims
-            renderClaims(patent.claims || []);
+            renderClaims(claims);
             
-            // Set analysis (if available)
-            renderAnalysis(patent.analysis || {
-                keyConcepts: ["Search ranking", "Link analysis", "User behavior signals"],
-                impactAreas: {
-                    onPage: {
-                        impact: "High",
-                        details: "This patent suggests significant importance placed on content quality and relevance to search queries."
-                    },
-                    technical: {
-                        impact: "Medium",
-                        details: "Site performance metrics appear to be considered in the ranking algorithm described."
-                    },
-                    backlinks: {
-                        impact: "Very High", 
-                        details: "The patent directly addresses link quality assessment and may indicate new approaches to link evaluation."
-                    },
-                    userSignals: {
-                        impact: "High",
-                        details: "Click-through rates and user engagement metrics are explicitly mentioned as ranking signals."
-                    }
-                },
-                actionItems: [
-                    "Optimize content for relevance rather than keyword density",
-                    "Improve site technical performance",
-                    "Focus on quality backlinks from authoritative sources",
-                    "Enhance CTR through better title tags and meta descriptions"
-                ],
-                insightSummary: "This patent reveals Google's continued emphasis on user experience signals while introducing more sophisticated methods for assessing content quality beyond traditional keyword analysis."
-            });
+            // Generate and set analysis
+            const analysis = generateAnalysis(patent);
+            renderAnalysis(analysis);
             
             // Initialize tabs
             initTabs();
             
             // Set up analyze button
             document.getElementById('analyze-button').addEventListener('click', function() {
-                // This would normally submit to an API endpoint
-                alert('Analysis functionality would be implemented here in a production environment.');
+                alert('Analysis functionality would be implemented in a production environment.');
             });
         }
         
-        // Format patent description
+        // Format patent description with paragraphs
         function formatDescription(description) {
-            if (!description) return '<p>No description available</p>';
+            if (!description) return '<p>No description available.</p>';
             
-            // Split into paragraphs and wrap in <p> tags
-            return description.split('\n\n')
-                .map(para => `<p>${para}</p>`)
-                .join('');
+            // Split by paragraphs and format
+            const paragraphs = description.split(/\n\n+/);
+            return paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
         }
         
-        // Render patent claims
+        // Render claims in a structured format
         function renderClaims(claims) {
-            const claimsContainer = document.getElementById('patent-claims');
-            
-            if (!claims || claims.length === 0) {
-                claimsContainer.innerHTML = '<p>No claims available for this patent.</p>';
+            if (!claims || claims === 'No claims available.') {
+                document.getElementById('patent-claims').innerHTML = '<p>No claims available for this patent.</p>';
                 return;
             }
             
-            // Create ordered list for claims
-            const claimsList = document.createElement('ol');
-            claimsList.className = 'claims-list';
+            // Try to parse individual claims (numbered format)
+            const claimMatches = claims.match(/\d+\.\s+.+?(?=\d+\.\s+|$)/gs);
             
-            // Add each claim
-            claims.forEach(claim => {
-                const claimItem = document.createElement('li');
-                claimItem.textContent = claim;
-                claimsList.appendChild(claimItem);
-            });
-            
-            claimsContainer.appendChild(claimsList);
+            if (claimMatches && claimMatches.length > 0) {
+                const claimsHTML = claimMatches.map(claim => {
+                    const claimNumber = claim.match(/^\d+/)[0];
+                    const claimText = claim.replace(/^\d+\.\s+/, '').trim();
+                    return `
+                        <div class="claim">
+                            <div class="claim-number">Claim ${claimNumber}</div>
+                            <div class="claim-text">${claimText}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('patent-claims').innerHTML = claimsHTML;
+            } else {
+                // If we can't parse numbered claims, just format as paragraphs
+                document.getElementById('patent-claims').innerHTML = formatDescription(claims);
+            }
         }
         
-        // Render SEO analysis
+        // Generate analysis based on patent content
+        function generateAnalysis(patent) {
+            // This would normally be done by an API call to an analysis service
+            // Here we're generating placeholder analysis based on the patent content
+            
+            // Extract potential keywords from title and abstract
+            const titleAndAbstract = `${patent.title} ${patent.abstract}`.toLowerCase();
+            
+            const keyConcepts = [];
+            
+            // Check for specific SEO-related keywords
+            if (titleAndAbstract.includes('rank') || titleAndAbstract.includes('algorithm')) {
+                keyConcepts.push("Search ranking");
+            }
+            if (titleAndAbstract.includes('link') || titleAndAbstract.includes('graph')) {
+                keyConcepts.push("Link analysis");
+            }
+            if (titleAndAbstract.includes('user') || titleAndAbstract.includes('behavior') || 
+                titleAndAbstract.includes('engagement')) {
+                keyConcepts.push("User behavior signals");
+            }
+            if (titleAndAbstract.includes('content') || titleAndAbstract.includes('quality')) {
+                keyConcepts.push("Content quality");
+            }
+            if (titleAndAbstract.includes('mobile') || titleAndAbstract.includes('responsive')) {
+                keyConcepts.push("Mobile optimization");
+            }
+            if (titleAndAbstract.includes('entity') || titleAndAbstract.includes('semantic')) {
+                keyConcepts.push("Semantic search");
+            }
+            
+            // If no concepts found, add some default ones
+            if (keyConcepts.length === 0) {
+                keyConcepts.push("Search ranking", "Algorithm updates", "SEO factors");
+            }
+            
+            // Generate impact areas
+            const impactAreas = {
+                onPage: {
+                    impact: titleAndAbstract.includes('content') ? "High" : "Medium",
+                    details: "This patent suggests importance placed on content quality and relevance to search queries."
+                },
+                technical: {
+                    impact: titleAndAbstract.includes('performance') ? "High" : "Medium",
+                    details: "Site performance metrics appear to be considered in the algorithms described."
+                },
+                backlinks: {
+                    impact: titleAndAbstract.includes('link') ? "High" : "Medium",
+                    details: "The patent addresses link quality assessment and may indicate approaches to link evaluation."
+                },
+                userSignals: {
+                    impact: titleAndAbstract.includes('user') ? "High" : "Medium",
+                    details: "User engagement metrics may be used as ranking signals according to this patent."
+                }
+            };
+            
+            // Generate action items
+            const actionItems = [
+                "Optimize content for relevance rather than keyword density",
+                "Improve site technical performance",
+                "Focus on quality backlinks from authoritative sources",
+                "Enhance CTR through better title tags and meta descriptions"
+            ];
+            
+            // Generate insight summary
+            let insightSummary = "This patent reveals Google's continued emphasis on providing relevant results while introducing more sophisticated methods for assessing content quality beyond traditional keyword analysis.";
+            
+            if (patent.category && patent.category.includes("Core Ranking")) {
+                insightSummary = "This core ranking patent indicates Google's continued refinement of its fundamental ranking algorithms, with emphasis on quality signals and relevance factors.";
+            } else if (patent.category && patent.category.includes("Mobile")) {
+                insightSummary = "This mobile optimization patent highlights the importance of responsive design and mobile user experience in Google's ranking considerations.";
+            }
+            
+            return {
+                keyConcepts,
+                impactAreas,
+                actionItems,
+                insightSummary
+            };
+        }
+        
+        // Render the analysis in the UI
         function renderAnalysis(analysis) {
-            const analysisContainer = document.getElementById('seo-analysis');
+            // Render key concepts
+            document.getElementById('key-concepts').innerHTML = 
+                analysis.keyConcepts.map(concept => `<li>${concept}</li>`).join('');
             
-            // Key concepts
-            const keyConcepts = document.createElement('div');
-            keyConcepts.className = 'key-concepts';
-            keyConcepts.innerHTML = `
-                <h4>Key Concepts</h4>
-                <div class="tag-list">
-                    ${analysis.keyConcepts.map(concept => `<span class="tag">${concept}</span>`).join('')}
-                </div>
-            `;
-            analysisContainer.appendChild(keyConcepts);
+            // Render impact areas
+            const impactAreasHTML = Object.entries(analysis.impactAreas).map(([key, area]) => {
+                const title = {
+                    onPage: 'On-Page Factors',
+                    technical: 'Technical SEO',
+                    backlinks: 'Backlink Profile',
+                    userSignals: 'User Signals'
+                }[key];
+                
+                const impactClass = {
+                    'High': 'impact-high',
+                    'Medium': 'impact-medium',
+                    'Low': 'impact-low',
+                    'Very High': 'impact-high'
+                }[area.impact] || 'impact-medium';
+                
+                return `
+                    <div class="impact-card">
+                        <div class="impact-title">
+                            ${title} <span class="impact-level ${impactClass}">${area.impact}</span>
+                        </div>
+                        <p>${area.details}</p>
+                    </div>
+                `;
+            }).join('');
             
-            // Impact areas
-            const impactAreas = document.createElement('div');
-            impactAreas.className = 'analysis-grid';
+            document.getElementById('impact-areas').innerHTML = impactAreasHTML;
             
-            // On-page impact
-            impactAreas.innerHTML += `
-                <div class="analysis-card">
-                    <h4><span class="analysis-icon">1</span> On-Page SEO Impact</h4>
-                    <div class="impact-level ${analysis.impactAreas.onPage.impact.toLowerCase()}">${analysis.impactAreas.onPage.impact}</div>
-                    <p>${analysis.impactAreas.onPage.details}</p>
-                </div>
-            `;
+            // Render action items
+            document.getElementById('action-items').innerHTML = 
+                analysis.actionItems.map(item => `<li>${item}</li>`).join('');
             
-            // Technical impact
-            impactAreas.innerHTML += `
-                <div class="analysis-card">
-                    <h4><span class="analysis-icon">2</span> Technical SEO Impact</h4>
-                    <div class="impact-level ${analysis.impactAreas.technical.impact.toLowerCase()}">${analysis.impactAreas.technical.impact}</div>
-                    <p>${analysis.impactAreas.technical.details}</p>
-                </div>
-            `;
-            
-            // Backlinks impact
-            impactAreas.innerHTML += `
-                <div class="analysis-card">
-                    <h4><span class="analysis-icon">3</span> Backlinks Impact</h4>
-                    <div class="impact-level ${analysis.impactAreas.backlinks.impact.toLowerCase()}">${analysis.impactAreas.backlinks.impact}</div>
-                    <p>${analysis.impactAreas.backlinks.details}</p>
-                </div>
-            `;
-            
-            // User signals impact
-            impactAreas.innerHTML += `
-                <div class="analysis-card">
-                    <h4><span class="analysis-icon">4</span> User Signals Impact</h4>
-                    <div class="impact-level ${analysis.impactAreas.userSignals.impact.toLowerCase()}">${analysis.impactAreas.userSignals.impact}</div>
-                    <p>${analysis.impactAreas.userSignals.details}</p>
-                </div>
-            `;
-            
-            analysisContainer.appendChild(impactAreas);
-            
-            // Action items
-            const actionItems = document.createElement('div');
-            actionItems.className = 'action-items';
-            actionItems.innerHTML = `
-                <h4>Recommended Actions</h4>
-                <ul class="action-list">
-                    ${analysis.actionItems.map(item => `<li>${item}</li>`).join('')}
-                </ul>
-            `;
-            analysisContainer.appendChild(actionItems);
-            
-            // Insight summary
-            const insightSummary = document.createElement('div');
-            insightSummary.className = 'insight-summary';
-            insightSummary.innerHTML = `
-                <h4>Analysis Summary</h4>
-                <div class="summary-box">
-                    <p>${analysis.insightSummary}</p>
-                </div>
-            `;
-            analysisContainer.appendChild(insightSummary);
+            // Render insight summary
+            document.getElementById('insight-summary').innerText = analysis.insightSummary;
         }
         
         // Initialize tabs functionality
         function initTabs() {
-            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabs = document.querySelectorAll('.tab');
             const tabContents = document.querySelectorAll('.tab-content');
             
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Remove active class from all buttons and tabs
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
                     
-                    // Add active class to clicked button
-                    this.classList.add('active');
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
                     
-                    // Show corresponding tab content
-                    const tabId = this.dataset.tab;
-                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    // Add active class to current tab and content
+                    tab.classList.add('active');
+                    document.getElementById(`tab-${tabId}`).classList.add('active');
                 });
             });
         }

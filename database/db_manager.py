@@ -183,20 +183,44 @@ def save_patent(patent_id, title, abstract, filing_date, issue_date, inventors, 
     conn.commit()
     conn.close()
 
-def get_patents(category=None):
-    """Get all patents, optionally filtered by category"""
+def get_patents(category=None, page=1, per_page=10):
+    """Get patents with pagination, optionally filtered by category"""
     conn = get_db()
     cursor = conn.cursor()
     
+    # Get the total count first
     if category:
-        cursor.execute('SELECT * FROM patents WHERE category = ? ORDER BY issue_date DESC', (category,))
+        cursor.execute('SELECT COUNT(*) FROM patents WHERE category LIKE ?', (f'%{category}%',))
     else:
-        cursor.execute('SELECT * FROM patents ORDER BY issue_date DESC')
+        cursor.execute('SELECT COUNT(*) FROM patents')
+    
+    total_count = cursor.fetchone()[0]
+    
+    # Calculate offset
+    offset = (page - 1) * per_page
+    
+    # Get the paginated results
+    if category:
+        cursor.execute(
+            'SELECT * FROM patents WHERE category LIKE ? ORDER BY issue_date DESC LIMIT ? OFFSET ?', 
+            (f'%{category}%', per_page, offset)
+        )
+    else:
+        cursor.execute(
+            'SELECT * FROM patents ORDER BY issue_date DESC LIMIT ? OFFSET ?', 
+            (per_page, offset)
+        )
     
     patents = cursor.fetchall()
     conn.close()
     
-    return patents
+    return {
+        'patents': patents,
+        'total': total_count,
+        'page': page,
+        'per_page': per_page,
+        'total_pages': (total_count + per_page - 1) // per_page  # Ceiling division
+    }
 
 def get_patent_by_id(patent_id):
     """Get a patent by its ID"""

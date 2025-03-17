@@ -38,12 +38,17 @@
                         </div>
                         
                         <div class="filter-group">
-                            <label for="patent-type">Patent Type</label>
-                            <select id="patent-type" name="type">
-                                <option value="">All Types</option>
-                                <option value="utility">Utility</option>
-                                <option value="design">Design</option>
-                                <option value="plant">Plant</option>
+                            <label for="patent-category">Category</label>
+                            <select id="patent-category" name="category">
+                                <option value="">All Categories</option>
+                                <option value="Core Ranking Algorithm Patents">Core Ranking Algorithm</option>
+                                <option value="Site Architecture Optimization">Site Architecture</option>
+                                <option value="Mobile Optimization">Mobile Optimization</option>
+                                <option value="Entity Recognition & Semantic Search">Entity Recognition</option>
+                                <option value="User Experience & Intent Matching">User Experience</option>
+                                <option value="Technical SEO Factors">Technical SEO</option>
+                                <option value="Local & Voice Search">Local & Voice Search</option>
+                                <option value="Social Signals & Author Authority">Social Signals</option>
                             </select>
                         </div>
                         
@@ -51,43 +56,37 @@
                             <label for="sort-by">Sort By</label>
                             <select id="sort-by" name="sort">
                                 <option value="relevance">Relevance</option>
-                                <option value="date_desc">Newest First</option>
-                                <option value="date_asc">Oldest First</option>
-                                <option value="title_asc">Title A-Z</option>
-                                <option value="title_desc">Title Z-A</option>
+                                <option value="date-desc">Date (Newest First)</option>
+                                <option value="date-asc">Date (Oldest First)</option>
+                                <option value="title-asc">Title (A-Z)</option>
+                                <option value="title-desc">Title (Z-A)</option>
                             </select>
                         </div>
                     </div>
                     
                     <div class="filter-actions">
-                        <button type="button" id="reset-filters" class="btn btn-text">Reset Filters</button>
                         <button type="submit" class="btn btn-primary">Search Patents</button>
+                        <button type="button" id="reset-filters" class="btn btn-text">Reset Filters</button>
                     </div>
                 </form>
             </div>
             
-            <div id="search-results">
+            <div class="patents-results">
                 <div class="results-header">
-                    <h3>Patent Results</h3>
-                    <span class="results-count" id="results-count">0 results</span>
+                    <h3>Results <span id="results-count">0 results</span></h3>
                 </div>
                 
-                <div class="patents-list" id="patents-list">
-                    <!-- Patent results will be loaded here -->
-                    <div class="loading-indicator">
-                        <div class="spinner"></div>
-                        <p>Searching patents...</p>
-                    </div>
+                <div id="patents-list" class="patents-list">
+                    <!-- Patent items will be added here -->
+                    <div class="loading">Loading patents...</div>
                 </div>
                 
                 <div class="pagination" id="pagination">
-                    <!-- Pagination will be added here -->
+                    <!-- Pagination links will be added here -->
                 </div>
             </div>
         </div>
     </main>
-    
-    <!-- INCLUDE:footer.html -->
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -97,61 +96,17 @@
             const resultsCount = document.getElementById('results-count');
             const pagination = document.getElementById('pagination');
             
-            // Sample patent data for demonstration
-            const samplePatents = [
-                {
-                    id: 'US10885017B2',
-                    title: 'Generating search results based on user engagement',
-                    assignee: 'Google LLC',
-                    filed: '2019-04-15',
-                    abstract: 'Systems and methods for generating search results based on user engagement metrics including click-through rates, dwell time, and other user interactions.',
-                    type: 'utility'
-                },
-                {
-                    id: 'US11042647B1',
-                    title: 'Determining quality of linked resources for ranking search results',
-                    assignee: 'Google LLC',
-                    filed: '2020-06-22',
-                    abstract: 'Methods for determining quality scores for resources based on link patterns, content quality, and other factors for use in ranking search results.',
-                    type: 'utility'
-                },
-                {
-                    id: 'US10909122B1',
-                    title: 'Mobile-friendly content ranking system',
-                    assignee: 'Google LLC',
-                    filed: '2020-02-14',
-                    abstract: 'System for ranking search results based on mobile-friendliness scores calculated from various factors including loading speed, viewport configuration, and touch element spacing.',
-                    type: 'utility'
-                },
-                {
-                    id: 'US10719547B2',
-                    title: 'Entity recognition for search queries',
-                    assignee: 'Microsoft Technology Licensing, LLC',
-                    filed: '2018-11-30',
-                    abstract: 'Techniques for recognizing entities in search queries and using the recognized entities to improve search result relevance and presentation.',
-                    type: 'utility'
-                },
-                {
-                    id: 'US10949457B2',
-                    title: 'Content freshness in search ranking',
-                    assignee: 'Google LLC',
-                    filed: '2019-08-18',
-                    abstract: 'Methods for determining content freshness and incorporating freshness signals into search result ranking algorithms.',
-                    type: 'utility'
-                }
-            ];
-            
-            // Display sample patent data
-            const displayPatents = (patents) => {
+            // Display patents
+            const displayPatents = (data) => {
                 patentsList.innerHTML = '';
-                resultsCount.textContent = `${patents.length} results`;
+                resultsCount.textContent = `${data.total} results`;
                 
-                if (patents.length === 0) {
+                if (data.patents.length === 0) {
                     patentsList.innerHTML = '<div class="empty-state">No patents found matching your criteria. Try adjusting your search filters.</div>';
                     return;
                 }
                 
-                patents.forEach(patent => {
+                data.patents.forEach(patent => {
                     const patentCard = document.createElement('div');
                     patentCard.className = 'patent-card';
                     patentCard.innerHTML = `
@@ -160,70 +115,117 @@
                             <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                 <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-                            </svg> Filed: ${patent.filed}</span>
+                            </svg> Filed: ${patent.filing_date || 'N/A'}</span>
                             <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="currentColor" stroke-width="2"/>
                                 <path d="M3 9H21" stroke="currentColor" stroke-width="2"/>
                                 <path d="M9 21V9" stroke="currentColor" stroke-width="2"/>
                             </svg> ${patent.id}</span>
                         </div>
-                        <p><strong>${patent.assignee}</strong></p>
-                        <p>${patent.abstract}</p>
+                        <p><strong>${patent.assignee || 'Unknown Assignee'}</strong></p>
+                        <p>${patent.abstract || 'No abstract available.'}</p>
                         <div class="patent-actions">
-                            <a href="/patents/view?id=${patent.id}" class="btn btn-sm">View Details</a>
+                            <a href="/patents/${patent.id}" class="btn btn-sm">View Details</a>
                             <a href="/patents/analyze?id=${patent.id}" class="btn btn-sm btn-secondary">Analyze</a>
                         </div>
                     `;
                     patentsList.appendChild(patentCard);
                 });
                 
-                // Create simple pagination
+                // Create pagination
                 pagination.innerHTML = '';
-                for (let i = 1; i <= 3; i++) {
-                    const pageLink = document.createElement('a');
-                    pageLink.href = '#';
-                    pageLink.textContent = i;
-                    if (i === 1) pageLink.className = 'active';
-                    pageLink.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        document.querySelectorAll('#pagination a').forEach(link => link.classList.remove('active'));
-                        pageLink.classList.add('active');
-                        // In a real app, this would load the specific page of results
-                    });
-                    pagination.appendChild(pageLink);
+                const currentPage = data.page;
+                const totalPages = data.total_pages;
+                
+                if (totalPages > 1) {
+                    // Previous button
+                    if (currentPage > 1) {
+                        const prevButton = document.createElement('a');
+                        prevButton.href = '#';
+                        prevButton.innerHTML = '&laquo;';
+                        prevButton.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            fetchPatents(document.getElementById('patent-category').value, currentPage - 1);
+                        });
+                        pagination.appendChild(prevButton);
+                    }
+                    
+                    // Page numbers
+                    const startPage = Math.max(1, currentPage - 2);
+                    const endPage = Math.min(totalPages, startPage + 4);
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        const pageLink = document.createElement('a');
+                        pageLink.href = '#';
+                        pageLink.textContent = i;
+                        if (i === currentPage) pageLink.className = 'active';
+                        pageLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            fetchPatents(document.getElementById('patent-category').value, i);
+                        });
+                        pagination.appendChild(pageLink);
+                    }
+                    
+                    // Next button
+                    if (currentPage < totalPages) {
+                        const nextButton = document.createElement('a');
+                        nextButton.href = '#';
+                        nextButton.innerHTML = '&raquo;';
+                        nextButton.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            fetchPatents(document.getElementById('patent-category').value, currentPage + 1);
+                        });
+                        pagination.appendChild(nextButton);
+                    }
                 }
             };
             
-            // Initial display
-            setTimeout(() => {
-                displayPatents(samplePatents);
-            }, 500);
+            // Fetch patents with pagination
+            const fetchPatents = (category = '', page = 1) => {
+                let url = `/api/patents?page=${page}&per_page=10`;
+                if (category) {
+                    url += `&category=${encodeURIComponent(category)}`;
+                }
+                
+                patentsList.innerHTML = '<div class="loading">Loading patents...</div>';
+                
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch patents');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        displayPatents(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching patents:', error);
+                        patentsList.innerHTML = '<div class="error">Error loading patents. Please try again later.</div>';
+                    });
+            };
+            
+            // Initial fetch
+            fetchPatents();
             
             // Search form submission
             searchForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const searchTerm = document.getElementById('search-term').value.toLowerCase();
                 const assignee = document.getElementById('patent-assignee').value.toLowerCase();
+                const category = document.getElementById('patent-category').value;
                 
-                // Filter the sample patents based on search criteria
-                const filteredPatents = samplePatents.filter(patent => {
-                    const matchesTerm = !searchTerm || 
-                        patent.title.toLowerCase().includes(searchTerm) || 
-                        patent.abstract.toLowerCase().includes(searchTerm);
-                    
-                    const matchesAssignee = !assignee || 
-                        patent.assignee.toLowerCase().includes(assignee);
-                    
-                    return matchesTerm && matchesAssignee;
-                });
+                // Fetch patents with the selected category
+                fetchPatents(category, 1); // Reset to first page when filtering
                 
-                displayPatents(filteredPatents);
+                // Client-side filtering will be applied on the received data
+                // Note: In a full implementation, these filters would be part of the API call
             });
             
             // Reset filters
             resetButton.addEventListener('click', () => {
                 searchForm.reset();
-                displayPatents(samplePatents);
+                fetchPatents('', 1); // Reset to first page with no filters
             });
         });
     </script>

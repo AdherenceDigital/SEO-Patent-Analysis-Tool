@@ -11,6 +11,9 @@ import http.server
 from http import HTTPStatus
 from urllib.parse import parse_qs
 
+# Add database imports
+from database.db_manager import get_patents, get_patent_by_id
+
 # Base directory setup
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -27,12 +30,22 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
         # Parse the URL
         parsed_path = urllib.parse.urlparse(self.path)
         path = parsed_path.path
+        query_params = parse_qs(parsed_path.query)
+        
+        # Handle API endpoints
+        if path.startswith('/api/'):
+            self.handle_api(path, query_params)
+            return
         
         # Handle special routes
         if path == '/':
             path = '/index.html'
         elif path == '/patents':
             path = '/patents/index.html'
+        elif path.startswith('/patents/') and len(path.split('/')) == 3:
+            # Handle /patents/[patent-id]
+            patent_id = path.split('/')[2]
+            path = '/patents/view/index.html'
         elif path == '/dashboard':
             path = '/dashboard.html'
         
@@ -76,6 +89,81 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
         except FileNotFoundError:
             self.send_error(HTTPStatus.NOT_FOUND, 'File not found')
             return
+    
+    def handle_api(self, path, query_params):
+        """Handle API requests"""
+        if path == '/api/patents':
+            self.handle_api_patents(query_params)
+        elif path == '/api/patent':
+            self.handle_api_patent(query_params)
+        else:
+            self.send_error(HTTPStatus.NOT_FOUND, 'API endpoint not found')
+    
+    def handle_api_patents(self, query_params):
+        """Handle /api/patents endpoint"""
+        category = query_params.get('category', [None])[0]
+        page = int(query_params.get('page', ['1'])[0])
+        per_page = int(query_params.get('per_page', ['10'])[0])
+        
+        result = get_patents(category, page, per_page)
+        
+        # Convert patents to JSON serializable format
+        patents_json = {
+            'patents': [],
+            'total': result['total'],
+            'page': result['page'],
+            'per_page': result['per_page'],
+            'total_pages': result['total_pages']
+        }
+        
+        for patent in result['patents']:
+            patents_json['patents'].append({
+                'id': patent['patent_id'],
+                'title': patent['title'],
+                'abstract': patent['abstract'],
+                'filing_date': patent['filing_date'],
+                'issue_date': patent['issue_date'],
+                'inventors': patent['inventors'],
+                'assignee': patent['assignee'],
+                'category': patent['category']
+            })
+        
+        self.send_response(HTTPStatus.OK)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(patents_json).encode('utf-8'))
+    
+    def handle_api_patent(self, query_params):
+        """Handle /api/patent endpoint"""
+        patent_id = query_params.get('id', [None])[0]
+        
+        if not patent_id:
+            self.send_error(HTTPStatus.BAD_REQUEST, 'Missing patent ID')
+            return
+        
+        patent = get_patent_by_id(patent_id)
+        
+        if not patent:
+            self.send_error(HTTPStatus.NOT_FOUND, 'Patent not found')
+            return
+        
+        # Convert patent to JSON serializable format
+        patent_json = {
+            'id': patent['patent_id'],
+            'title': patent['title'],
+            'abstract': patent['abstract'],
+            'filing_date': patent['filing_date'],
+            'issue_date': patent['issue_date'],
+            'inventors': patent['inventors'],
+            'assignee': patent['assignee'],
+            'category': patent['category'],
+            'full_text': patent['full_text']
+        }
+        
+        self.send_response(HTTPStatus.OK)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(patent_json).encode('utf-8'))
     
     def process_includes(self, content):
         """Process includes in HTML content"""

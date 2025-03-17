@@ -13,23 +13,13 @@ The SEO Patent Analysis Tool helps SEO professionals and digital marketers gain 
 - **Optimization Tips**: Get actionable recommendations based on patent insights
 - **Backlink Research**: Understand link algorithms through patent analysis
 
-## Installation
+## Development Guidelines
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/seo-patent-analysis-tool.git
+**IMPORTANT: All development must be done on the Hetzner server and backed up to GitHub.**
 
-# Navigate to the project directory
-cd seo-patent-analysis-tool
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the server
-python server.py
-```
-
-The application will be available at http://localhost:8000
+- Development server: http://49.12.225.194:8000/
+- Development is performed directly on the server
+- All changes must be backed up to GitHub regularly
 
 ## Project Structure
 
@@ -50,15 +40,7 @@ seo-patent-analysis-tool/
 
 ## Usage
 
-1. Navigate to the home page at http://localhost:8000
+1. Navigate to the application at http://49.12.225.194:8000/
 2. Use the navigation menu to access different sections of the application
 3. Search for patents using the search functionality on the Patents page
 4. View detailed patent information and analysis on the patent detail pages
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a pull request.
