@@ -43,23 +43,30 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
         path = parsed_path.path
         query_params = parse_qs(parsed_path.query)
         
+        logger.info(f"Handling request: {path} with params: {query_params}")
+        
         # Handle API endpoints
         if path.startswith('/api/'):
+            logger.info(f"Processing API request: {path}")
             self.handle_api(path, query_params)
             return
         
         # Handle special routes
         if path == '/':
+            logger.info("Serving home page")
             path = '/index.html'
         elif path == '/patents':
+            logger.info("Serving patents index page")
             path = '/patents/index.html'
         elif path.startswith('/patents/') and len(path.split('/')) == 3 and not path.startswith('/patents/view/'):
             # Handle /patents/[patent-id]
             patent_id = path.split('/')[2]
+            logger.info(f"Serving patent detail page for: {patent_id}")
             # Pass the patent ID as a query parameter
             self.patent_id = patent_id  # Store for use in process_includes
             path = '/patents/view/index.html'
         elif path == '/dashboard':
+            logger.info("Serving dashboard page")
             path = '/dashboard.html'
         
         # Handle special case for favicon
@@ -85,6 +92,7 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
         
         try:
             # Open the file
+            logger.info(f"Attempting to open file: {file_path}")
             with open(file_path, 'rb') as f:
                 self.send_response(HTTPStatus.OK)
                 self.send_header('Content-type', content_type)
@@ -93,14 +101,21 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
                 
                 # For HTML files, process includes
                 if ext == '.html':
+                    logger.info(f"Processing HTML file: {file_path}")
                     content = f.read().decode('utf-8')
                     content = self.process_includes(content)
                     self.wfile.write(content.encode('utf-8'))
                 else:
                     # For non-HTML files, send as is
+                    logger.info(f"Serving non-HTML file: {file_path}")
                     self.wfile.write(f.read())
         except FileNotFoundError:
+            logger.error(f"File not found: {file_path}")
             self.send_error(HTTPStatus.NOT_FOUND, 'File not found')
+            return
+        except Exception as e:
+            logger.error(f"Error serving file {file_path}: {str(e)}")
+            self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, 'Internal server error')
             return
     
     def handle_api(self, path, query_params):

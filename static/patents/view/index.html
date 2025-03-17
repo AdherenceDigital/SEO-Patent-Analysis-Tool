@@ -251,8 +251,20 @@
         
         // Function to get patent ID from URL
         function getPatentIdFromUrl() {
+            console.log('Getting patent ID from URL: ' + window.location.pathname);
             const pathParts = window.location.pathname.split('/');
-            return pathParts[pathParts.length - 1];
+            console.log('Path parts: ', pathParts);
+            if (pathParts.length >= 3 && pathParts[1] === 'patents') {
+                // Handle direct path format: /patents/US10719547B2
+                return pathParts[2];
+            }
+            
+            // Handle query parameter format: /patents/view?id=US10719547B2
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromQuery = urlParams.get('id');
+            console.log('ID from query: ' + idFromQuery);
+            
+            return idFromQuery;
         }
         
         // Function to render patent details
