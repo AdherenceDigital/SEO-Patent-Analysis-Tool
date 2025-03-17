@@ -1,0 +1,22 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="Analyze search engine patents to improve your SEO strategy with the SEO Patent Analysis Tool.">
+<link rel="stylesheet" href="/static/css/styles.css">
+<link rel="stylesheet" href="/static/css/dark-mode.css">
+<link rel="icon" type="image/png" href="/static/images/favicon.png">
+<script>
+// Check for dark mode preference
+if (localStorage.getItem('darkMode') === 'true' || 
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && 
+     localStorage.getItem('darkMode') === null)) {
+    document.documentElement.classList.add('dark-mode');
+}
+
+// Toggle function to be used by the dark mode switch
+function toggleDarkMode() {
+    const isDarkMode = document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDarkMode);
+}
+</script>

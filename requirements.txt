@@ -1,17 +1,1 @@
-# requirements.txt
-aiohttp==3.8.5
-beautifulsoup4==4.12.2
-google-api-python-client==2.105.0
-google-auth==2.23.0
-google-auth-oauthlib==1.1.0
-lxml==4.9.3
-matplotlib==3.8.0
-networkx==3.1
-numpy==1.24.4
-pandas==2.0.3
-Pillow==10.0.1
-pyOpenSSL==23.2.0
-python-dotenv==1.0.0
-requests==2.31.0
-SQLAlchemy==2.0.21
-urllib3==2.0.5
+# Python dependencies for SEO Patent Analysis Tool

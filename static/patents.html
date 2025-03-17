@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patents - SEO Patent Analysis Tool</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SEO Patent Analysis Tool</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/patents" class="active">Patents</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="dashboard-header">
+            <h2>Patents Library</h2>
+            <div class="dashboard-actions">
+                <a href="/patents/search" class="btn btn-primary">Search New Patents</a>
+            </div>
+        </div>
+        
+        <div id="patents-container">
+            <div class="alert alert-info">
+                Loading patents...
+            </div>
+        </div>
+        
+        <button data-api="/api/patents" data-target="#patents-container" data-autoload="true" style="display: none;">Load Patents</button>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 SEO Patent Analysis Tool</p>
+        </div>
+    </footer>
+    
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

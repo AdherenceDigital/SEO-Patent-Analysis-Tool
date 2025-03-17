@@ -1,0 +1,36 @@
+<header>
+    <div class="container">
+        <h1>SEO Patent Analysis Tool</h1>
+        <nav>
+            <ul>
+                <li><a href="/" id="nav-home">Home</a></li>
+                <li><a href="/patents" id="nav-patents">Patents</a></li>
+                <li><a href="/dashboard" id="nav-dashboard">Dashboard</a></li>
+                <li class="dark-mode-toggle-container">
+                    <label class="dark-mode-toggle">
+                        <input type="checkbox" onclick="toggleDarkMode()" id="darkModeToggle">
+                        <span class="slider"></span>
+                    </label>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<script>
+    // Highlight the active nav item based on the current page
+    document.addEventListener('DOMContentLoaded', function() {
+        const path = window.location.pathname;
+        
+        if (path === '/' || path === '/index.html') {
+            document.getElementById('nav-home').classList.add('active');
+        } else if (path.includes('/patents')) {
+            document.getElementById('nav-patents').classList.add('active');
+        } else if (path.includes('/dashboard')) {
+            document.getElementById('nav-dashboard').classList.add('active');
+        }
+        
+        // Set dark mode toggle state
+        document.getElementById('darkModeToggle').checked = document.documentElement.classList.contains('dark-mode');
+    });
+</script>

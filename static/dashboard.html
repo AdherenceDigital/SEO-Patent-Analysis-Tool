@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- INCLUDE:header.html -->
+    <title>Dashboard - SEO Patent Analysis Tool</title>
+</head>
+<body>
+    <!-- INCLUDE:navigation.html -->
+    
+    <main class="dashboard">
+        <div class="container">
+            <div class="dashboard-header">
+                <h2>Dashboard</h2>
+                <div class="dashboard-actions">
+                    <a href="/patents" class="btn btn-primary">Search Patents</a>
+                </div>
+            </div>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">Saved Patents</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">15</div>
+                    <div class="stat-label">SEO Insights</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Recent Updates</div>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Projects</h3>
+                        <a href="/projects" class="btn btn-text">View All</a>
+                    </div>
+                    <div class="card-content">
+                        <ul class="project-list" id="projects-list">
+                            <li class="loading">Loading projects...</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Recent Patents</h3>
+                        <a href="/patents" class="btn btn-text">View All</a>
+                    </div>
+                    <div class="card-content">
+                        <ul class="patent-list" id="recent-patents">
+                            <li class="loading">Loading patents...</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Top SEO Insights</h3>
+                    </div>
+                    <div class="card-content">
+                        <ul class="insight-list">
+                            <li>
+                                <div class="insight-icon">🔍</div>
+                                <div class="insight-content">
+                                    <h4>Search Signals Evolving</h4>
+                                    <p>Recent patents show Google emphasizing user interaction metrics.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="insight-icon">📱</div>
+                                <div class="insight-content">
+                                    <h4>Mobile-First Indexing</h4>
+                                    <p>New algorithms prioritize mobile performance in rankings.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="insight-icon">🔄</div>
+                                <div class="insight-content">
+                                    <h4>Content Freshness</h4>
+                                    <p>Patents reveal new methods to evaluate content recency.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- INCLUDE:footer.html -->
+    
+    <script>
+        // Fetch projects and patents on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch projects
+            fetch('/api/projects')
+                .then(response => response.json())
+                .then(projects => {
+                    const projectsListEl = document.getElementById('projects-list');
+                    projectsListEl.innerHTML = '';
+                    
+                    if (projects.length === 0) {
+                        projectsListEl.innerHTML = '<li class="empty-state">No projects available.</li>';
+                        return;
+                    }
+                    
+                    projects.forEach(project => {
+                        const projectItem = document.createElement('li');
+                        projectItem.innerHTML = `
+                            <a href="/projects/${project.id}" class="project-item">
+                                <div class="project-name">${project.name}</div>
+                                <div class="project-meta">Created: ${project.created}</div>
+                            </a>
+                        `;
+                        projectsListEl.appendChild(projectItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching projects:', error);
+                    document.getElementById('projects-list').innerHTML = 
+                        '<li class="error-state">Error loading projects. Please try again later.</li>';
+                });
+            
+            // Fetch patents
+            fetch('/api/patents')
+                .then(response => response.json())
+                .then(patents => {
+                    const recentPatentsEl = document.getElementById('recent-patents');
+                    recentPatentsEl.innerHTML = '';
+                    
+                    if (patents.length === 0) {
+                        recentPatentsEl.innerHTML = '<li class="empty-state">No patents available.</li>';
+                        return;
+                    }
+                    
+                    // Display up to 3 patents
+                    const patentsToShow = patents.slice(0, 3);
+                    
+                    patentsToShow.forEach(patent => {
+                        const patentItem = document.createElement('li');
+                        patentItem.innerHTML = `
+                            <a href="/patents/view?id=${patent.id}" class="patent-item">
+                                <div class="patent-name">${patent.title}</div>
+                                <div class="patent-meta">${patent.assignee} | ${patent.filed}</div>
+                            </a>
+                        `;
+                        recentPatentsEl.appendChild(patentItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching patents:', error);
+                    document.getElementById('recent-patents').innerHTML = 
+                        '<li class="error-state">Error loading patents. Please try again later.</li>';
+                });
+        });
+    </script>
+</body>
+</html>

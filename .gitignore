@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Local development settings
+.env
+.vscode/
+.idea/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Project specific
+server-backup/
+*.log
+.ssh_config_temp
+dashboard_original.html
+dashboard_updated.html
+index_original.html
+index_updated.html
+login_original.html
+login_updated.html
+patents_index_original.html
+patents_index_updated.html

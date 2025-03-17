@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- INCLUDE:header.html -->
+    <title>Patents - SEO Patent Analysis Tool</title>
+</head>
+<body>
+    <!-- INCLUDE:navigation.html -->
+    
+    <main class="patents-page">
+        <div class="container">
+            <div class="page-header">
+                <h2>Search Patents</h2>
+                <p>Search for patents related to search engines, algorithms, and SEO technologies.</p>
+            </div>
+            
+            <div class="patent-filters">
+                <form id="patent-search-form">
+                    <div class="filter-grid">
+                        <div class="filter-group">
+                            <label for="search-term">Search Term</label>
+                            <input type="text" id="search-term" name="q" placeholder="e.g. search algorithm, ranking factor">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="patent-assignee">Assignee</label>
+                            <input type="text" id="patent-assignee" name="assignee" placeholder="e.g. Google, Microsoft">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="date-from">Date From</label>
+                            <input type="date" id="date-from" name="date_from">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="date-to">Date To</label>
+                            <input type="date" id="date-to" name="date_to">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="patent-type">Patent Type</label>
+                            <select id="patent-type" name="type">
+                                <option value="">All Types</option>
+                                <option value="utility">Utility</option>
+                                <option value="design">Design</option>
+                                <option value="plant">Plant</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="sort-by">Sort By</label>
+                            <select id="sort-by" name="sort">
+                                <option value="relevance">Relevance</option>
+                                <option value="date_desc">Newest First</option>
+                                <option value="date_asc">Oldest First</option>
+                                <option value="title_asc">Title A-Z</option>
+                                <option value="title_desc">Title Z-A</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button type="button" id="reset-filters" class="btn btn-text">Reset Filters</button>
+                        <button type="submit" class="btn btn-primary">Search Patents</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="search-results">
+                <div class="results-header">
+                    <h3>Patent Results</h3>
+                    <span class="results-count" id="results-count">0 results</span>
+                </div>
+                
+                <div class="patents-list" id="patents-list">
+                    <!-- Patent results will be loaded here -->
+                    <div class="loading-indicator">
+                        <div class="spinner"></div>
+                        <p>Searching patents...</p>
+                    </div>
+                </div>
+                
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be added here -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- INCLUDE:footer.html -->
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('patent-search-form');
+            const resetButton = document.getElementById('reset-filters');
+            const patentsList = document.getElementById('patents-list');
+            const resultsCount = document.getElementById('results-count');
+            const pagination = document.getElementById('pagination');
+            
+            // Sample patent data for demonstration
+            const samplePatents = [
+                {
+                    id: 'US10885017B2',
+                    title: 'Generating search results based on user engagement',
+                    assignee: 'Google LLC',
+                    filed: '2019-04-15',
+                    abstract: 'Systems and methods for generating search results based on user engagement metrics including click-through rates, dwell time, and other user interactions.',
+                    type: 'utility'
+                },
+                {
+                    id: 'US11042647B1',
+                    title: 'Determining quality of linked resources for ranking search results',
+                    assignee: 'Google LLC',
+                    filed: '2020-06-22',
+                    abstract: 'Methods for determining quality scores for resources based on link patterns, content quality, and other factors for use in ranking search results.',
+                    type: 'utility'
+                },
+                {
+                    id: 'US10909122B1',
+                    title: 'Mobile-friendly content ranking system',
+                    assignee: 'Google LLC',
+                    filed: '2020-02-14',
+                    abstract: 'System for ranking search results based on mobile-friendliness scores calculated from various factors including loading speed, viewport configuration, and touch element spacing.',
+                    type: 'utility'
+                },
+                {
+                    id: 'US10719547B2',
+                    title: 'Entity recognition for search queries',
+                    assignee: 'Microsoft Technology Licensing, LLC',
+                    filed: '2018-11-30',
+                    abstract: 'Techniques for recognizing entities in search queries and using the recognized entities to improve search result relevance and presentation.',
+                    type: 'utility'
+                },
+                {
+                    id: 'US10949457B2',
+                    title: 'Content freshness in search ranking',
+                    assignee: 'Google LLC',
+                    filed: '2019-08-18',
+                    abstract: 'Methods for determining content freshness and incorporating freshness signals into search result ranking algorithms.',
+                    type: 'utility'
+                }
+            ];
+            
+            // Display sample patent data
+            const displayPatents = (patents) => {
+                patentsList.innerHTML = '';
+                resultsCount.textContent = `${patents.length} results`;
+                
+                if (patents.length === 0) {
+                    patentsList.innerHTML = '<div class="empty-state">No patents found matching your criteria. Try adjusting your search filters.</div>';
+                    return;
+                }
+                
+                patents.forEach(patent => {
+                    const patentCard = document.createElement('div');
+                    patentCard.className = 'patent-card';
+                    patentCard.innerHTML = `
+                        <h3>${patent.title}</h3>
+                        <div class="patent-meta">
+                            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                            </svg> Filed: ${patent.filed}</span>
+                            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M3 9H21" stroke="currentColor" stroke-width="2"/>
+                                <path d="M9 21V9" stroke="currentColor" stroke-width="2"/>
+                            </svg> ${patent.id}</span>
+                        </div>
+                        <p><strong>${patent.assignee}</strong></p>
+                        <p>${patent.abstract}</p>
+                        <div class="patent-actions">
+                            <a href="/patents/view?id=${patent.id}" class="btn btn-sm">View Details</a>
+                            <a href="/patents/analyze?id=${patent.id}" class="btn btn-sm btn-secondary">Analyze</a>
+                        </div>
+                    `;
+                    patentsList.appendChild(patentCard);
+                });
+                
+                // Create simple pagination
+                pagination.innerHTML = '';
+                for (let i = 1; i <= 3; i++) {
+                    const pageLink = document.createElement('a');
+                    pageLink.href = '#';
+                    pageLink.textContent = i;
+                    if (i === 1) pageLink.className = 'active';
+                    pageLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        document.querySelectorAll('#pagination a').forEach(link => link.classList.remove('active'));
+                        pageLink.classList.add('active');
+                        // In a real app, this would load the specific page of results
+                    });
+                    pagination.appendChild(pageLink);
+                }
+            };
+            
+            // Initial display
+            setTimeout(() => {
+                displayPatents(samplePatents);
+            }, 500);
+            
+            // Search form submission
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const searchTerm = document.getElementById('search-term').value.toLowerCase();
+                const assignee = document.getElementById('patent-assignee').value.toLowerCase();
+                
+                // Filter the sample patents based on search criteria
+                const filteredPatents = samplePatents.filter(patent => {
+                    const matchesTerm = !searchTerm || 
+                        patent.title.toLowerCase().includes(searchTerm) || 
+                        patent.abstract.toLowerCase().includes(searchTerm);
+                    
+                    const matchesAssignee = !assignee || 
+                        patent.assignee.toLowerCase().includes(assignee);
+                    
+                    return matchesTerm && matchesAssignee;
+                });
+                
+                displayPatents(filteredPatents);
+            });
+            
+            // Reset filters
+            resetButton.addEventListener('click', () => {
+                searchForm.reset();
+                displayPatents(samplePatents);
+            });
+        });
+    </script>
+</body>
+</html>

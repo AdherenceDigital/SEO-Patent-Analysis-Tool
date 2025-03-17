@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- INCLUDE:header.html -->
+    <title>Patent Analysis - SEO Patent Analysis Tool</title>
+    <style>
+        .patent-summary {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .patent-summary h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .patent-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .patent-meta span {
+            display: inline-block;
+            color: var(--text-muted);
+        }
+        
+        .patent-meta strong {
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-right: 0.25rem;
+        }
+        
+        .analysis-section {
+            margin-bottom: 2rem;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .impact-card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .impact-card h4 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .impact-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-radius: 50%;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-right: 0.75rem;
+        }
+        
+        .impact-level {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .impact-level.high,
+        .impact-level.very-high {
+            background-color: rgba(244, 67, 54, 0.15);
+            color: #d32f2f;
+        }
+        
+        .impact-level.medium {
+            background-color: rgba(255, 152, 0, 0.15);
+            color: #ef6c00;
+        }
+        
+        .impact-level.low {
+            background-color: rgba(76, 175, 80, 0.15);
+            color: #2e7d32;
+        }
+        
+        .key-concepts {
+            margin-bottom: 2rem;
+        }
+        
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 0.4rem 0.75rem;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .action-list {
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .action-list li {
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+        
+        .summary-box {
+            background-color: var(--light-color);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin: 1rem 0;
+        }
+        
+        .analysis-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .placeholder-message {
+            text-align: center;
+            padding: 3rem;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- INCLUDE:navigation.html -->
+    
+    <main class="container">
+        <div class="dashboard-header">
+            <h2>Patent Analysis</h2>
+            <p>Analyze patents for SEO implications and actionable insights</p>
+        </div>
+        
+        <div id="patent-container">
+            <!-- Patent details will be loaded here -->
+        </div>
+        
+        <div id="analysis-container">
+            <!-- Analysis results will be loaded here -->
+        </div>
+    </main>
+    
+    <!-- INCLUDE:footer.html -->
+    
+    <script>
+        // Get patent ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const patentId = urlParams.get('id');
+        
+        // If we have a patent ID, fetch the details
+        if (patentId) {
+            // Fetch patent details
+            fetch(`/api/patent/${patentId}`)
+                .then(response => response.json())
+                .then(patent => {
+                    renderPatentSummary(patent);
+                    
+                    // Check if we already have analysis
+                    if (patent.analysis) {
+                        renderAnalysis(patent.analysis);
+                    } else {
+                        renderAnalysisPlaceholder();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching patent details:', error);
+                    document.getElementById('patent-container').innerHTML = 
+                        '<div class="error">Error loading patent details. Please try again later.</div>';
+                });
+        } else {
+            renderPatentSelector();
+        }
+        
+        // Render patent summary
+        function renderPatentSummary(patent) {
+            const patentContainer = document.getElementById('patent-container');
+            
+            patentContainer.innerHTML = `
+                <div class="patent-summary">
+                    <h3>${patent.title}</h3>
+                    <div class="patent-id">${patent.id}</div>
+                    
+                    <div class="patent-meta">
+                        <span><strong>Assignee:</strong> ${patent.assignee}</span>
+                        <span><strong>Filed:</strong> ${patent.filed}</span>
+                        <span><strong>Published:</strong> ${patent.published}</span>
+                    </div>
+                    
+                    <div class="patent-abstract">
+                        <p>${patent.abstract.substring(0, 200)}${patent.abstract.length > 200 ? '...' : ''}</p>
+                    </div>
+                    
+                    <a href="/patents/view?id=${patent.id}" class="btn btn-text">View Full Patent Details</a>
+                </div>
+            `;
+        }
+        
+        // Render patent selector
+        function renderPatentSelector() {
+            const patentContainer = document.getElementById('patent-container');
+            const analysisContainer = document.getElementById('analysis-container');
+            
+            patentContainer.innerHTML = `
+                <div class="section">
+                    <h3>Select a Patent to Analyze</h3>
+                    <p>You need to select a patent to analyze its SEO implications.</p>
+                    
+                    <form id="patent-select-form" class="form" style="margin-top: 1.5rem;">
+                        <div class="form-row">
+                            <div class="form-group flex-grow">
+                                <label for="patent-id">Patent ID</label>
+                                <input type="text" id="patent-id" name="patentId" placeholder="Enter a patent ID (e.g., US9195944)" required>
+                            </div>
+                            <div class="form-group" style="align-self: flex-end;">
+                                <button type="submit" class="btn btn-primary">Analyze</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <p style="margin-top: 1.5rem;">Or search for patents first:</p>
+                    <a href="/patents" class="btn btn-outline">Search Patents</a>
+                </div>
+            `;
+            
+            analysisContainer.innerHTML = '';
+            
+            // Set up form submission
+            document.getElementById('patent-select-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const patentId = document.getElementById('patent-id').value.trim();
+                if (patentId) {
+                    window.location.href = `/patents/analyze?id=${patentId}`;
+                }
+            });
+        }
+        
+        // Render analysis placeholder
+        function renderAnalysisPlaceholder() {
+            const analysisContainer = document.getElementById('analysis-container');
+            
+            analysisContainer.innerHTML = `
+                <div class="placeholder-message">
+                    <h3>No Analysis Available</h3>
+                    <p>This patent hasn't been analyzed yet. Run an analysis to get SEO insights.</p>
+                    <button id="run-analysis-button" class="btn btn-primary" style="margin-top: 1rem;">Run Analysis</button>
+                </div>
+            `;
+            
+            // Set up button click
+            document.getElementById('run-analysis-button').addEventListener('click', function() {
+                runAnalysis();
+            });
+        }
+        
+        // Run analysis
+        function runAnalysis() {
+            const analysisContainer = document.getElementById('analysis-container');
+            
+            // Show loading state
+            analysisContainer.innerHTML = `
+                <div class="placeholder-message">
+                    <h3>Analyzing Patent</h3>
+                    <p>Please wait while we analyze the patent for SEO implications...</p>
+                </div>
+            `;
+            
+            // Simulate analysis with timeout (would be a real API call in production)
+            setTimeout(() => {
+                // Example analysis data (would come from server)
+                const analysis = {
+                    keyConcepts: ["Search ranking", "Link analysis", "User behavior signals"],
+                    impactAreas: {
+                        onPage: {
+                            impact: "High",
+                            details: "This patent suggests significant importance placed on content quality and relevance to search queries."
+                        },
+                        technical: {
+                            impact: "Medium",
+                            details: "Site performance metrics appear to be considered in the ranking algorithm described."
+                        },
+                        backlinks: {
+                            impact: "Very High", 
+                            details: "The patent directly addresses link quality assessment and may indicate new approaches to link evaluation."
+                        },
+                        userSignals: {
+                            impact: "High",
+                            details: "Click-through rates and user engagement metrics are explicitly mentioned as ranking signals."
+                        }
+                    },
+                    actionItems: [
+                        "Optimize content for relevance rather than keyword density",
+                        "Improve site technical performance",
+                        "Focus on quality backlinks from authoritative sources",
+                        "Enhance CTR through better title tags and meta descriptions"
+                    ],
+                    insightSummary: "This patent reveals Google's continued emphasis on user experience signals while introducing more sophisticated methods for assessing content quality beyond traditional keyword analysis."
+                };
+                
+                // Render the analysis
+                renderAnalysis(analysis);
+            }, 2000);
+        }
+        
+        // Render analysis results
+        function renderAnalysis(analysis) {
+            const analysisContainer = document.getElementById('analysis-container');
+            
+            let analysisHTML = `
+                <div class="analysis-section">
+                    <h3>SEO Impact Analysis</h3>
+                    
+                    <div class="key-concepts">
+                        <h4>Key Concepts</h4>
+                        <div class="tag-list">
+                            ${analysis.keyConcepts.map(concept => `<span class="tag">${concept}</span>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-grid">
+                        <div class="impact-card">
+                            <h4><span class="impact-icon">1</span> On-Page SEO Impact</h4>
+                            <div class="impact-level ${analysis.impactAreas.onPage.impact.toLowerCase().replace(' ', '-')}">${analysis.impactAreas.onPage.impact}</div>
+                            <p>${analysis.impactAreas.onPage.details}</p>
+                        </div>
+                        
+                        <div class="impact-card">
+                            <h4><span class="impact-icon">2</span> Technical SEO Impact</h4>
+                            <div class="impact-level ${analysis.impactAreas.technical.impact.toLowerCase().replace(' ', '-')}">${analysis.impactAreas.technical.impact}</div>
+                            <p>${analysis.impactAreas.technical.details}</p>
+                        </div>
+                        
+                        <div class="impact-card">
+                            <h4><span class="impact-icon">3</span> Backlinks Impact</h4>
+                            <div class="impact-level ${analysis.impactAreas.backlinks.impact.toLowerCase().replace(' ', '-')}">${analysis.impactAreas.backlinks.impact}</div>
+                            <p>${analysis.impactAreas.backlinks.details}</p>
+                        </div>
+                        
+                        <div class="impact-card">
+                            <h4><span class="impact-icon">4</span> User Signals Impact</h4>
+                            <div class="impact-level ${analysis.impactAreas.userSignals.impact.toLowerCase().replace(' ', '-')}">${analysis.impactAreas.userSignals.impact}</div>
+                            <p>${analysis.impactAreas.userSignals.details}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h3>Recommended Actions</h3>
+                    <ul class="action-list">
+                        ${analysis.actionItems.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="analysis-section">
+                    <h3>Analysis Summary</h3>
+                    <div class="summary-box">
+                        <p>${analysis.insightSummary}</p>
+                    </div>
+                </div>
+                
+                <div class="analysis-actions">
+                    <button id="export-button" class="btn btn-outline">Export Analysis</button>
+                    <button id="save-button" class="btn btn-primary">Save to Project</button>
+                </div>
+            `;
+            
+            analysisContainer.innerHTML = analysisHTML;
+            
+            // Set up export button
+            document.getElementById('export-button').addEventListener('click', function() {
+                // This would normally generate a PDF or other export format
+                alert('Export functionality would be implemented here in a production environment.');
+            });
+            
+            // Set up save button
+            document.getElementById('save-button').addEventListener('click', function() {
+                // This would normally save to a project
+                alert('Save to project functionality would be implemented here in a production environment.');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+/* Dark Mode Styling - Clean & Professional */
+
+:root {
+    --light-bg: #f8fafc;
+    --light-text: #1e293b;
+    --light-accent: #2563eb;
+    --light-secondary: #64748b;
+    --light-border: #e2e8f0;
+    --light-card: #ffffff;
+    
+    --dark-bg: #0f172a;
+    --dark-text: #e2e8f0;
+    --dark-accent: #3b82f6;
+    --dark-secondary: #94a3b8;
+    --dark-border: #334155;
+    --dark-card: #1e293b;
+    
+    /* Default Light Mode */
+    --bg-color: var(--light-bg);
+    --text-color: var(--light-text);
+    --accent-color: var(--light-accent);
+    --secondary-color: var(--light-secondary);
+    --border-color: var(--light-border);
+    --card-bg: var(--light-card);
+}
+
+/* Dark Mode Class */
+.dark-mode {
+    --bg-color: var(--dark-bg);
+    --text-color: var(--dark-text);
+    --accent-color: var(--dark-accent);
+    --secondary-color: var(--dark-secondary);
+    --border-color: var(--dark-border);
+    --card-bg: var(--dark-card);
+}
+
+/* Apply Dark Mode Variables */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode Toggle */
+.dark-mode-toggle {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    margin-left: 10px;
+}
+
+.dark-mode-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.dark-mode-toggle .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.dark-mode-toggle .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.dark-mode-toggle input:checked + .slider {
+    background-color: var(--accent-color);
+}
+
+.dark-mode-toggle input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Sun and Moon Icons */
+.dark-mode-toggle .slider:after {
+    content: "☀️";
+    position: absolute;
+    left: 6px;
+    top: 3px;
+    font-size: 12px;
+    transition: .4s;
+    opacity: 1;
+}
+
+.dark-mode-toggle input:checked + .slider:after {
+    content: "🌙";
+    left: 32px;
+}
+
+/* Color modifications for dark mode */
+.dark-mode header {
+    background-color: var(--dark-card);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode footer {
+    background-color: var(--dark-card);
+    border-top: 1px solid var(--border-color);
+}
+
+.dark-mode .feature-card,
+.dark-mode .patent-card,
+.dark-mode .dashboard-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+.dark-mode .feature-icon {
+    background-color: var(--dark-bg);
+}
+
+.dark-mode a {
+    color: var(--accent-color);
+}
+
+.dark-mode .btn-primary {
+    background-color: var(--accent-color);
+}
+
+.dark-mode .btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+    background-color: var(--dark-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
