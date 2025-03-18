@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger('seo_patent_tool')
 
 # Add database imports
-from database.db_manager import get_patents, get_patent_by_id, ensure_patents_exist
+from database.db_manager import get_patents, get_patent_by_id, ensure_patents_exist, get_projects, create_project
 
 # Default port and host
 PORT = int(os.environ.get('PORT', 8000))
@@ -73,6 +73,9 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
         elif path == '/dashboard':
             logger.info("Serving dashboard page")
             path = '/dashboard.html'
+        elif path == '/projects':
+            logger.info("Serving projects page")
+            path = '/projects/index.html'
         
         # Handle special case for favicon
         if path == '/favicon.ico':
@@ -123,14 +126,97 @@ class SEOPatentHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, 'Internal server error')
             return
     
+    def do_POST(self):
+        """Handle POST requests"""
+        # Parse the URL
+        parsed_path = urllib.parse.urlparse(self.path)
+        path = parsed_path.path
+        
+        logger.info(f"Handling POST request: {path}")
+        
+        # Handle API endpoints
+        if path.startswith('/api/'):
+            self.handle_api(path, {})
+            return
+    
     def handle_api(self, path, query_params):
         """Handle API requests"""
         if path == '/api/patents':
             self.handle_api_patents(query_params)
         elif path == '/api/patent':
             self.handle_api_patent(query_params)
+        elif path == '/api/projects':
+            self.handle_api_projects()
+        elif path == '/api/projects/create' and self.command == 'POST':
+            self.handle_api_projects_create()
         else:
             self.send_error(HTTPStatus.NOT_FOUND, 'API endpoint not found')
+            
+    def handle_api_projects(self):
+        """Handle /api/projects endpoint"""
+        # Get projects from the database
+        projects = get_projects()
+        
+        # Convert to JSON serializable format
+        projects_json = []
+        for project in projects:
+            projects_json.append({
+                'id': project['id'],
+                'name': project['name'],
+                'description': project['description'],
+                'url': project.get('url', ''),
+                'created_at': project['created_at']
+            })
+        
+        self.send_response(HTTPStatus.OK)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(projects_json).encode('utf-8'))
+        
+    def handle_api_projects_create(self):
+        """Handle creating a new project via POST to /api/projects/create"""
+        # Get POST data
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length).decode('utf-8')
+        
+        try:
+            # Parse JSON data
+            data = json.loads(post_data)
+            
+            # Extract project details
+            name = data.get('name')
+            description = data.get('description', '')
+            url = data.get('url', '')
+            
+            if not name:
+                raise ValueError("Project name is required")
+            
+            # Create the project
+            project_id = create_project(name, description, url)
+            
+            # Return success response
+            response = {
+                'success': True,
+                'message': 'Project created successfully',
+                'project_id': project_id
+            }
+            
+            self.send_response(HTTPStatus.OK)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode('utf-8'))
+            
+        except Exception as e:
+            # Return error response
+            response = {
+                'success': False,
+                'error': str(e)
+            }
+            
+            self.send_response(HTTPStatus.BAD_REQUEST)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode('utf-8'))
     
     def handle_api_patents(self, query_params):
         """Handle /api/patents endpoint"""
