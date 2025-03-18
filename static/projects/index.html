@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - SEO Patent Analysis Tool</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/dark-mode.css">
+    <script src="/static/js/main.js" defer></script>
+</head>
+<body>
+    <!-- INCLUDE:header.html -->
+    <!-- INCLUDE:navigation.html -->
+    
+    <main class="container">
+        <h1>Projects</h1>
+        
+        <div class="projects-list">
+            <div class="loader" id="projectsLoader">Loading projects...</div>
+            <div id="projectsContainer"></div>
+        </div>
+        
+        <div class="project-actions">
+            <button id="createProjectBtn" class="btn btn-primary">Create New Project</button>
+        </div>
+        
+        <div id="createProjectModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Create New Project</h2>
+                <form id="createProjectForm">
+                    <div class="form-group">
+                        <label for="projectName">Project Name:</label>
+                        <input type="text" id="projectName" name="projectName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDescription">Description:</label>
+                        <textarea id="projectDescription" name="projectDescription" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectUrl">Website URL (optional):</label>
+                        <input type="url" id="projectUrl" name="projectUrl" placeholder="https://example.com">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <!-- INCLUDE:footer.html -->
+    
+    <script>
+        // Load projects from the API
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/projects')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const projectsContainer = document.getElementById('projectsContainer');
+                    const loader = document.getElementById('projectsLoader');
+                    
+                    loader.style.display = 'none';
+                    
+                    if (data.length === 0) {
+                        projectsContainer.innerHTML = '<p>No projects found. Create your first project!</p>';
+                        return;
+                    }
+                    
+                    let projectsHTML = '<div class="projects-grid">';
+                    
+                    data.forEach(project => {
+                        projectsHTML += `
+                            <div class="project-card">
+                                <h3>${project.name}</h3>
+                                <p>${project.description || 'No description'}</p>
+                                <div class="project-meta">
+                                    <span>Created: ${new Date(project.created_at).toLocaleDateString()}</span>
+                                </div>
+                                <div class="project-actions">
+                                    <a href="/project/${project.id}" class="btn btn-sm">View Project</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    projectsHTML += '</div>';
+                    projectsContainer.innerHTML = projectsHTML;
+                })
+                .catch(error => {
+                    document.getElementById('projectsLoader').style.display = 'none';
+                    document.getElementById('projectsContainer').innerHTML = 
+                        '<p class="error">Error loading projects. Please try again later.</p>';
+                    console.error('Error fetching projects:', error);
+                });
+                
+            // Project creation modal functionality
+            const modal = document.getElementById('createProjectModal');
+            const btn = document.getElementById('createProjectBtn');
+            const span = document.getElementsByClassName('close')[0];
+            const form = document.getElementById('createProjectForm');
+            
+            btn.onclick = function() {
+                modal.style.display = 'block';
+            }
+            
+            span.onclick = function() {
+                modal.style.display = 'none';
+            }
+            
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            }
+            
+            form.onsubmit = function(e) {
+                e.preventDefault();
+                
+                const projectData = {
+                    name: document.getElementById('projectName').value,
+                    description: document.getElementById('projectDescription').value,
+                    url: document.getElementById('projectUrl').value
+                };
+                
+                fetch('/api/projects/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(projectData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to show the new project
+                        window.location.reload();
+                    } else {
+                        alert('Error creating project: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating project:', error);
+                    alert('Error creating project. Please try again.');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

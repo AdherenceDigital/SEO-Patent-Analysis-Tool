@@ -62,6 +62,8 @@ class SEOPatentHandler(BaseHTTPRequestHandler):
             self.path = '/static/index.html'
         elif path == '/login':
             self.path = '/static/login.html'
+        elif path == '/projects':
+            self.path = '/static/projects/index.html'
         elif os.path.exists(os.path.join(SERVER_ROOT, path[1:])):
             # Path exists, serve it as is
             pass
